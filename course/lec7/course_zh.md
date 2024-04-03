@@ -1,5 +1,5 @@
 ---
-<!-- MoonBit Course © 2024 by DII, International Digital Economy Academy is licensed under Attribution-NonCommercial-NoDerivatives 4.0 International -->
+# MoonBit Course © 2024 by DII, International Digital Economy Academy is licensed under Attribution-NonCommercial-NoDerivatives 4.0 International
 marp: true
 math: mathjax
 paginate: true
