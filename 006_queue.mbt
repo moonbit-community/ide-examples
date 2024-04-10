@@ -105,7 +105,7 @@ fn dequeue[T](q: Queue[T]) -> Option[Queue[T]] {
 fn Queue::from_array[T](arr: Array[T]) -> Queue[T] {
   loop arr.length(), List::Nil {
     0, acc => acc
-    i, acc => continue i - 1, List::Cons(arr[i], acc)
+    i, acc => continue i - 1, List::Cons(arr[i - 1], acc)
   }
   |> from_list
 }
