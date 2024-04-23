@@ -7,7 +7,7 @@
 /// `Node` represents a node in the AVL tree with left child, value, right child, and height
 enum T[U] {
   Empty
-  Node (T[U], U, T[U], Int)
+  Node (~left : T[U], ~elem : U, ~right : T[U], ~height : Int)
 }
 
 /// `height[U](self: T[U])`
@@ -16,17 +16,17 @@ enum T[U] {
 fn height[U](self: T[U]) -> Int {
   match self {
     Empty => 0
-    Node(_, _, _, h) => h
+    Node(~height, ..) => height
   }
 }
 
-/// `create[U](l: T[U], v: U, r: T[U])`
+/// `create[U](left: T[U], elem: U, right: T[U])`
 ///
 /// Create a new node with the given left and right subtrees, along with a value of type `U`.
-fn create[U](l: T[U], v: U, r: T[U]) -> T[U] {
-  let hl = l.height()
-  let hr = r.height()
-  Node(l, v, r, if hl >= hr { hl + 1 } else { hr + 1 })
+fn create[U](left: T[U], elem: U, right: T[U]) -> T[U] {
+  let hl = left.height()
+  let hr = right.height()
+  Node(~left, ~right, ~elem, height=if hl >= hr { hl + 1 } else { hr + 1 })
 }
 
 /// `bal[U](l: T[U], v: U, r: T[U])`
@@ -45,14 +45,14 @@ fn bal[U](l: T[U], v: U, r: T[U]) -> T[U] {
     match l {
       Empty =>
         Empty // impossible
-      Node(ll, lv, lr, _) =>
+      Node(left=ll, elem=lv, right=lr, ..) =>
         if ll.height() >= lr.height() {
           create(ll, lv, create(lr, v, r))
         } else {
           match lr {
             Empty =>
               Empty // impossible
-            Node(lrl, lrv, lrr, _) =>
+            Node(left=lrl, elem=lrv, right=lrr, ..) =>
               create(create(ll, lv, lrl), lrv, create(lrr, v, r))
           }
         }
@@ -62,20 +62,20 @@ fn bal[U](l: T[U], v: U, r: T[U]) -> T[U] {
     match r {
       Empty =>
         Empty // impossible
-      Node(rl, rv, rr, _) =>
+      Node(left=rl, elem=rv, right=rr, ..) =>
         if rr.height() >= rl.height() {
           create(create(l, v, rl), rv, rr)
         } else {
           match rl {
             Empty =>
               Empty // impossible
-            Node(rll, rlv, rlr, _) =>
+            Node(left=rll, elem=rlv, right=rlr, ..) =>
               create(create(l, v, rll), rlv, create(rlr, rv, rr))
           }
         }
     }
   } else {
-    Node(l, v, r, if hl >= hr { hl + 1 } else { hr + 1 })
+    Node(left=l, elem=v, right=r, height=if hl >= hr { hl + 1 } else { hr + 1 })
   }
 }
 
@@ -84,8 +84,8 @@ fn bal[U](l: T[U], v: U, r: T[U]) -> T[U] {
 /// Add a value to a tree-like structure.
 fn add[U:Compare](self: T[U], x: U) -> T[U] {
   match self {
-    Empty => Node(Empty, x, Empty, 1)
-    Node(l, v, r, _) as t => {
+    Empty => Node(left=Empty, elem=x, right=Empty, height=1)
+    Node(left=l, elem=v, right=r, ..) as t => {
       let c = x.compare(v)
       if c == 0 {
         t
@@ -100,8 +100,8 @@ fn add[U:Compare](self: T[U], x: U) -> T[U] {
 fn min_elt[U](self: T[U], default: U) -> U {
   match self {
     Empty => default
-    Node(Empty, v, _, _) => v
-    Node(l, v, _, _) => l.min_elt(v)
+    Node(left=Empty, elem=v, ..) => v
+    Node(left=l, elem=v, ..) => l.min_elt(v)
   }
 }
 
@@ -111,7 +111,7 @@ fn min_elt[U](self: T[U], default: U) -> U {
 fn remove_min_elt[U](l: T[U], v: U, r: T[U]) -> T[U] {
   match l {
     Empty => r
-    Node(ll, lv, lr, _) => bal(remove_min_elt(ll, lv, lr), v, r)
+    Node(left=ll, elem=lv, right=lr, ..) => bal(remove_min_elt(ll, lv, lr), v, r)
   }
 }
 
@@ -122,7 +122,7 @@ fn internal_merge[U](self: T[U], other: T[U]) -> T[U] {
   match (self, other) {
     (Empty, t) => t
     (t, Empty) => t
-    (_, Node(rl, rv, rr, _)) =>
+    (_, Node(left=rl, elem=rv, right=rr, ..)) =>
       bal(self, other.min_elt(rv), remove_min_elt(rl, rv, rr))
   }
 }
@@ -133,7 +133,7 @@ fn internal_merge[U](self: T[U], other: T[U]) -> T[U] {
 fn remove[U:Compare](self: T[U], x: U) -> T[U] {
   match self {
     Empty => Empty
-    Node(l, v, r, _) => {
+    Node(left=l, elem=v, right=r, ..) => {
       let c = x.compare(v)
       if c == 0 {
         l.internal_merge(r)
@@ -148,8 +148,8 @@ fn remove[U:Compare](self: T[U], x: U) -> T[U] {
 pub fn to_string[U : Show](self : T[U]) -> String {
   match self {
     Empty => "()"
-    Node(Empty, v, Empty, _) => v.to_string()
-    Node(l, v, r, _) => "(\(l), \(v), \(r))"
+    Node(left=Empty, elem=v, right=Empty, ..) => v.to_string()
+    Node(left=l, elem=v, right=r, ..) => "(\(l), \(v), \(r))"
   }
 }
 
@@ -159,7 +159,7 @@ pub fn to_string[U : Show](self : T[U]) -> String {
 fn mem[U:Compare](self: T[U], x: U) -> Bool {
   match self {
     Empty => false
-    Node(l, v, r, _) => {
+    Node(left=l, elem=v, right=r, ..) => {
       let c = x.compare(v)
       let tree = if c < 0 { l } else { r }
       c == 0 || tree.mem(x)
