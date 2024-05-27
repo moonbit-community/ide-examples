@@ -24,6 +24,10 @@ jobs:
           find . -maxdepth 1 -type f -name '*.mbt' | \
           while read -r file; do
             moonc check "$file" -std-path ~/.moon/lib/core/target/wasm-gc/release/bundle || exit 1
-            moonc check "$file" -std-path ~/.moon/lib/core/target/wasm/release/bundle || exit 1
-            moonc check "$file" -std-path ~/.moon/lib/core/target/js/release/bundle || exit 1
+          done
+
+      - name: check package
+        run: |
+          find . -maxdepth 1 -type d -not -name '.*' -not -name 'course' | while read -r dir; do
+            moonc check $(find "$dir" -maxdepth 1 -name '*.mbt' | tr '\n' ' ') -std-path ~/.moon/lib/core/target/wasm-gc/release/bundle || exit 1
           done

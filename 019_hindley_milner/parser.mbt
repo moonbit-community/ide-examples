@@ -47,9 +47,9 @@ fn lexeme(self: Tokenizer) -> String {
     return ""
   }
 
-  let b = Bytes::make(len, 0)
+  let b = Bytes::make(len)
   for i = 0; i < len; i = i + 1 {
-    b[i] = self.src[self.token_start + i].to_int()
+    b[i] = self.src[self.token_start + i].to_int().to_byte()
   }
   b.to_string()
 }
@@ -74,7 +74,7 @@ fn do_next(self: Tokenizer) -> Result[Token, String] {
       None => { return Ok(EOF) }
       Some(c) => c
     }
-  
+
   match c {
     ' ' | '\n' | '\t' => { return self.do_next() }
     '(' => { return Ok(LPAREN) }
