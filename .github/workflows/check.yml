@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
   schedule:
-    - cron: '0 10 * * 2'
+    - cron: '0 2 * * 2'
 
 jobs:
   check:
@@ -16,12 +16,14 @@ jobs:
 
       - name: install
         run: |
-          /bin/bash -c "$(curl -fsSL https://cli.moonbitlang.com/ubuntu_x86_64_moon_setup.sh)"
-          echo "/home/runner/.moon/bin" >> $GITHUB_PATH
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo ~/.moon/bin >> $GITHUB_PATH
 
       - name: check single file
         run: |
           find . -maxdepth 1 -type f -name '*.mbt' | \
           while read -r file; do
-            moonc check "$file" -std-path ~/.moon/lib/core/target/bundle || exit 1
+            moonc check "$file" -std-path ~/.moon/lib/core/target/wasm-gc/release/bundle || exit 1
+            moonc check "$file" -std-path ~/.moon/lib/core/target/wasm/release/bundle || exit 1
+            moonc check "$file" -std-path ~/.moon/lib/core/target/js/release/bundle || exit 1
           done
