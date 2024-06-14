@@ -62,7 +62,7 @@ pub fn iter[X](self: List[X], f: (X) -> Unit) -> Unit {
 /// construct List from Array.
 fn List::from_array[T](arr: Array[T]) -> List[T] {
   loop arr.length() - 1, List::Nil {
-    0, acc => acc
+    0, acc => List::Cons(arr[0], acc)
     i, acc => continue i - 1, List::Cons(arr[i], acc)
   }
 }
