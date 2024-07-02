@@ -167,7 +167,7 @@ fn parse_simple_expr(self: Tokenizer) -> Result[Expr, String] {
       Ok(expr)
     }
     token => {
-      let b = Buffer::make(17)
+      let b = Buffer::new(~size_hint=17)
       b.write_string("unexpected token \"")
       token.debug_write(b)
       b.write_string("\", expecting simple expression")
@@ -181,7 +181,7 @@ fn expect_ident(self: Tokenizer) -> Result[String, String] {
   match self.next()? {
     IDENT(id) => Ok(id)
     token => {
-      let b = Buffer::make(17)
+      let b = Buffer::new(~size_hint=17)
       b.write_string("unexpected token \"")
       token.debug_write(b)
       b.write_string("\", expecting identifier")
@@ -195,7 +195,7 @@ fn expect_token(self: Tokenizer, tok: Token) -> Result[Unit, String] {
   if next_tok == tok {
     Ok(())
   } else {
-    let b = Buffer::make(17)
+    let b = Buffer::new(~size_hint=17)
     b.write_string("unexpected token \"")
     next_tok.debug_write(b)
     b.write_string("\", expecting \"")

@@ -197,6 +197,7 @@ fn Map::of_array[K, V](xs: Array[(K, V)]) -> Map[K, V] {
 // pretty printer for type
 fn pretty(self: Type) -> Unit {
   let mut subst: Map[Int, String] = Empty
+  let buf = Buffer::new(~size_hint=100)
   fn show_var(tag: Int) -> String {
     match subst.find(tag) {
       Some(name) => name
@@ -209,32 +210,32 @@ fn pretty(self: Type) -> Unit {
   }
   fn go(ctx: Int, ty: Type) {
     match ty.repr() {
-      T_Var({ val: Free(tag, _) }) => print("?" + show_var(tag))
-      T_Var({ val: Generic(tag) }) => print(show_var(tag))
+      T_Var({ val: Free(tag, _) }) => buf.write_string("?" + show_var(tag))
+      T_Var({ val: Generic(tag) }) => buf.write_string(show_var(tag))
       T_Var(_) => abort("impossible")
       T_Lam(t1, t2) =>
         if ctx == 0 {
           go(1, t1)
-          print(" -> ")
+          buf.write_string(" -> ")
           go(0, t2)
         } else {
-          print("(")
+          buf.write_string("(")
           go(0, ty)
-          print(")")
+          buf.write_string(")")
         }
-      T_Con(con) => print(con)
+      T_Con(con) => buf.write_string(con)
       T_App(f, a) =>
         if ctx == 2 {
-          print("(")
+          buf.write_string("(")
           go(0, ty)
-          print(")")
+          buf.write_string(")")
         } else {
           go(1, f)
-          print(" ")
+          buf.write_string(" ")
           go(2, a)
         }
     }
   }
   go(0, self)
-  print("\n")
+  println(buf.to_string())
 }

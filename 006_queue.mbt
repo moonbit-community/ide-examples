@@ -1,14 +1,14 @@
 // This example implements a simple functional queue data structure in MoonBit
 
 struct Queue[T] {
-  front:List[T]
-  back:List[T]
+  front:@immut/list.List[T]
+  back:@immut/list.List[T]
 }
 
-/// `from_list[T](front: List[T])`
+/// `from_list[T](front: @immut/list.List[T])`
 ///
 /// Create a queue from a list.
-fn from_list[T](front: List[T]) -> Queue[T] {
+fn from_list[T](front: @immut/list.List[T]) -> Queue[T] {
   { front:front, back:Nil }
 }
 
@@ -22,14 +22,14 @@ fn is_empty[T](q: Queue[T]) -> Bool {
   }
 }
 
-/// `list_rev[T](xs: List[T])`
+/// `list_rev[T](xs: @immut/list.List[T])`
 ///
 /// Reverse a list using tail-recursive pattern matching.
-fn list_rev[T](xs: List[T]) -> List[T] {
-  fn go(acc, xs: List[T]) {
+fn list_rev[T](xs: @immut/list.List[T]) -> @immut/list.List[T] {
+  fn go(acc, xs: @immut/list.List[T]) {
     match xs {
       Nil => acc
-      Cons(x, rest) => go((Cons(x, acc) : List[T]), rest)
+      Cons(x, rest) => go((Cons(x, acc) : @immut/list.List[T]), rest)
     }
   }
 
@@ -103,9 +103,9 @@ fn dequeue[T](q: Queue[T]) -> Option[Queue[T]] {
 ///
 /// Convert an array to a linked list using recursion.
 fn Queue::from_array[T](arr: Array[T]) -> Queue[T] {
-  loop arr.length(), List::Nil {
+  loop arr.length(), @immut/list.List::Nil {
     0, acc => acc
-    i, acc => continue i - 1, List::Cons(arr[i - 1], acc)
+    i, acc => continue i - 1, @immut/list.List::Cons(arr[i - 1], acc)
   }
   |> from_list
 }
