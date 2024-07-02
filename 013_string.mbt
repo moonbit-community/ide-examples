@@ -19,7 +19,7 @@ fn init {
 
   // Format strings contain "replacement fields" surrounded by \()
   // Custom data types with the [to_string] method can be spliced directly
-  print("Hello a: \(a) & b: \(b) -- wow~\n")
+  println("Hello a: \(a) & b: \(b) -- wow~")
 
   let c = "string" + " to" + " append"
   println(c)

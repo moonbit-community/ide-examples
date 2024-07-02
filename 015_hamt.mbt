@@ -285,30 +285,30 @@ fn count_collision[K, V](self: HAMT[K, V]) -> Int {
   }
 }
 
-/// `print[K: Show, V: Show](self: HAMT[K, V], indent: Int)`
+/// `println[K: Show, V: Show](self: HAMT[K, V], indent: Int)`
 ///
 /// Print the contents of the Hash Array Mapped Trie (HAMT) with indentation.
 pub fn print_hamt[K: Show, V: Show](self: HAMT[K, V], indent: Int) -> Unit {
   match self {
-    Empty => print("Empty\n")
-    Leaf(k, v) => print("\(k) => \(v)\n")
+    Empty => println("Empty")
+    Leaf(k, v) => println("\(k) => \(v)")
     Collision(bucket) => print_bucket(bucket)
     Branch(children) =>
       if (children.data.length() == 0) {
-        print("Empty\n")
+        println("Empty")
       } else {
-        print("Branch\n")
+        println("Branch")
         for i = 0; i < 32; i = i + 1 {
           match children[i] {
             Some(child) => {
               for n = 0; n < indent; n = n + 1 {
-                print(' ')
+                println(' ')
               }
-              print("#\(i)\n")
+              println("#\(i)")
               for n = 0; n < indent; n = n + 1 {
-                print(' ')
+                println(' ')
               }
-              print("- ")
+              println("- ")
               child.print_hamt(indent + 2)
             }
             None => ()
@@ -365,14 +365,14 @@ fn size[K, V](self: Bucket[K, V]) -> Int {
   }
 }
 
-/// `print[K: Show, V: Show](self: Bucket[K, V])`
+/// `println[K: Show, V: Show](self: Bucket[K, V])`
 ///
 /// Print the contents of a Bucket.
 fn print_bucket[K: Show, V: Show](self: Bucket[K, V]) -> Unit {
   match self {
-    Just_One(k, v) => print("\(k) => \(v)\n")
+    Just_One(k, v) => println("\(k) => \(v)")
     More(k, v, rest) => {
-      print("\(k) => \(v); ")
+      println("\(k) => \(v); ")
       print_bucket(rest)
     }
   }
@@ -386,9 +386,9 @@ fn init {
     }
 
     let collision_count = hamt.count_collision()
-    print("number of collision: \(collision_count)\n")
+    println("number of collision: \(collision_count)")
     // uncomment this to see the tree (large trees may not display properly)
-    // hamt.print(0)
+    // hamt.println(0)
 
     let mut is_ok = true
     for i = 0; i < n; i = i + 1 {
@@ -396,16 +396,16 @@ fn init {
         Some(v) =>
           if v != i {
             is_ok = false
-            print("\(i): wrong value\n")
+            println("\(i): wrong value")
           }
         None => {
           is_ok = false
-          print("\(i): not found\n")
+          println("\(i): not found")
         }
       }
     }
 
     if (is_ok) {
-      print("OK!\n")
+      println("OK!")
     }
 }

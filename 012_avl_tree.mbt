@@ -180,7 +180,7 @@ fn init {
   }
 
   let height = v.height()
-  print("height of the tree: \(height)")
+  println("height of the tree: \(height)")
 
   // you can uncomment it and run it from terminal using moon
   // https://www.moonbitlang.com/en/download/
@@ -190,7 +190,7 @@ fn init {
   let mut j = 0
   while j < iter {
     if not(v.mem(j)) {
-      print("impossible")
+      println("impossible")
     }
     j = j + 1
   }
@@ -202,12 +202,12 @@ fn init {
     k = k + 1
   }
 
-  print("\n")
+  println("")
 
   // Tree is empty, removal successful
   match v {
-    Empty => print("success")
-    Node(_) => print("impossible")
+    Empty => println("success")
+    Node(_) => println("impossible")
   }
 }
 
