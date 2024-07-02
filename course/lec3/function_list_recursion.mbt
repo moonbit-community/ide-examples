@@ -29,15 +29,15 @@ let answer: () -> Int = fn () {
   real_answer("Ultimate answer")
 }
 
-let int_list: List[Int] = Cons(1, Cons(2, Cons(3, Nil)))
-let char_list: List[Char] = Cons('一', Cons('句', Cons('话', Nil)))
+let int_list: @immut/list.List[Int] = Cons(1, Cons(2, Cons(3, Nil)))
+let char_list: @immut/list.List[Char] = Cons('一', Cons('句', Cons('话', Nil)))
 
 // The following three lines do not compile as they are not valid lists 下方三行无法通过编译，不是合法的列表
 // let not_list1: List[Int] = Cons(1, Cons(true, Cons(3, Nil)))
 // let not_list2: List[Int] = Cons(1, 2)
 // let not_list3: List[Int] = Cons(1, Cons(Nil, Nil))
 
-fn head_opt(list: List[Int]) -> Option[Int] {
+fn head_opt(list: @immut/list.List[Int]) -> Option[Int] {
   match list {
     Nil => None
     Cons(head, tail) => Some(head)
@@ -71,7 +71,7 @@ fn odd(n: Int) -> Bool {
   n != 0 && (n == 1 || even(n - 1))
 }
 
-fn length(list: List[Int]) -> Int {
+fn length(list: @immut/list.List[Int]) -> Int {
   match list {
     Nil => 0
     Cons(_, tl) => 1 + length(tl)
@@ -80,7 +80,7 @@ fn length(list: List[Int]) -> Int {
 
 let n: Int = length(Cons(1, Cons(2, Nil)))
 
-fn tail(list: List[Int]) -> List[Int] {
+fn tail(list: @immut/list.List[Int]) -> @immut/list.List[Int] {
   match list {
     Nil => Nil
     Cons(_, tail) => tail

@@ -143,7 +143,7 @@ pub fn Map::hash_open_address[K : Hash + Eq + Default + Debug, V : Default + Deb
 }
 
 priv struct HT_bucket[K, V] {
-  mut values : Array[List[Entry[K, V]]]
+  mut values : Array[@immut/list.List[Entry[K, V]]]
   mut length : Int
   mut size : Int
 } derive(Debug)
@@ -210,7 +210,7 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
   fn remove(key : K) -> Unit {
     let hash = key.hash()
     let index = hash.mod_u(map.length)
-    loop map.values[index], List::Nil {
+    loop map.values[index], @immut/list.List::Nil {
       Cons(entry, rest), cumul => {
         if entry.key != key {
           continue rest,

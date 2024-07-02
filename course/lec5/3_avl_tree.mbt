@@ -169,15 +169,15 @@ fn init {
 
 // ----- Utils 工具 -----
 /// construct List from Array 从列表构建数组
-fn stream[T](array: Array[T]) -> List[T] {
-  fn go(idx: Int) -> List[T] {
+fn stream[T](array: Array[T]) -> @immut/list.List[T] {
+  fn go(idx: Int) -> @immut/list.List[T] {
     if idx == array.length() { Nil } else { Cons(array[idx], go(idx + 1)) }
   }
 
   go(0)
 }
 
-fn fold_left[A, B](list: List[A], f: (B, A) -> B, b: B) -> B {
+fn fold_left[A, B](list: @immut/list.List[A], f: (B, A) -> B, b: B) -> B {
   match list {
     Nil => b
     Cons(hd, tl) => fold_left(tl, f, f(b, hd))
@@ -187,8 +187,8 @@ fn fold_left[A, B](list: List[A], f: (B, A) -> B, b: B) -> B {
 // ----- Queue 队列 -----
 
 struct Queue[T] {
-  front:List[T]
-  back:List[T]
+  front: @immut/list.List[T]
+  back: @immut/list.List[T]
 }
 
 /// `Queue::default[T]()`
@@ -198,21 +198,21 @@ fn Queue::default[T]() -> Queue[T] {
   { front: Nil, back: Nil }
 }
 
-/// `from_list[T](front: List[T])`
+/// `from_list[T](front: @immut/list.List[T])`
 ///
 /// Create queue from list 从列表创建队列
-fn from_list[T](front: List[T]) -> Queue[T] {
+fn from_list[T](front: @immut/list.List[T]) -> Queue[T] {
   { front:front, back:Nil }
 }
 
-/// `list_rev[T](xs: List[T])`
+/// `list_rev[T](xs: @immut/list.List[T])`
 ///
 /// Reverse a list with tail recursion 基于尾递归的列表反转
-fn list_rev[T](xs: List[T]) -> List[T] {
-  fn go(acc, xs: List[T]) {
+fn list_rev[T](xs: @immut/list.List[T]) -> @immut/list.List[T] {
+  fn go(acc, xs: @immut/list.List[T]) {
     match xs {
       Nil => acc
-      Cons(x, rest) => go((Cons(x, acc) : List[T]), rest)
+      Cons(x, rest) => go((Cons(x, acc) : @immut/list.List[T]), rest)
     }
   }
 
