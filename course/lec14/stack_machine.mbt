@@ -83,15 +83,17 @@ fn Program::to_wasm(self : Program, buffer : Buffer) -> Unit {
 test "add" {
   let program = Program::{
     start: None,
-    functions: @immut/list.List::[
-      Function::{
-        name: "add",
-        params: @immut/list.List::["a", "b"],
-        result: 1,
-        locals: @immut/list.List::[],
-        instructions: @immut/list.List::[Local_Get("a"), Local_Get("b"), Add],
-      },
-    ],
+    functions: @immut/list.of(
+      [
+        Function::{
+          name: "add",
+          params: @immut/list.of(["a", "b"]),
+          result: 1,
+          locals: @immut/list.of([]),
+          instructions: @immut/list.of([Local_Get("a"), Local_Get("b"), Add]),
+        },
+      ],
+    ),
   }
   let buffer = Buffer::new(size_hint=100)
   program.to_wasm(buffer)
@@ -132,7 +134,7 @@ fn execute(program : Program) -> Option[String] {
         program,
         stack: Nil,
         locals: function.locals.fold_left(
-          ~init=@immut/sorted_map.empty(),
+          init=@immut/sorted_map.empty(),
           fn { map, name => map.insert(name, I32(0)) },
         ),
         instructions: function.instructions.map(
@@ -251,8 +253,8 @@ fn evaluate(state : State, stdout : Buffer) -> Option[State] {
                   state.stack.drop(function.params.length()),
                 ),
                 locals: function.locals.fold_left(
-                  ~init=function.params.zip(params.reverse()).fold_left(
-                    ~init=@immut/sorted_map.empty(),
+                  init=function.params.zip(params.rev()).fold_left(
+                    init=@immut/sorted_map.empty(),
                     fn {
                       map, (name, Val(value)) => map.insert(name, value)
                       _, _ => abort("Expected a value")
@@ -262,7 +264,7 @@ fn evaluate(state : State, stdout : Buffer) -> Option[State] {
                 ),
                 instructions: function.instructions.map(
                   AdministrativeInstruction::Plain,
-                ).concat(@immut/list.List::[EndOfFrame(function.result)]).concat(tl),
+                ).concat(@immut/list.of([EndOfFrame(function.result)])).concat(tl),
               },
             )
           }
@@ -301,42 +303,42 @@ fn evaluate(state : State, stdout : Buffer) -> Option[State] {
 }
 
 test "eval" {
-  let functions : @immut/list.List[Function] = @immut/list.List::[
+  let functions : @immut/list.List[Function] = @immut/list.of([
     Function::{
       name: "gcd",
-      params: @immut/list.List::["a", "b"],
+      params: @immut/list.of(["a", "b"]),
       result: 1,
-      locals: @immut/list.List::[],
-      instructions: @immut/list.List::[
+      locals: @immut/list.of([]),
+      instructions: @immut/list.of([
         Local_Get("a"),
         Const(I32(0)),
         Equal,
         If(
           1,
-          @immut/list.List::[Local_Get("b")],
-          @immut/list.List::[
+          @immut/list.of([Local_Get("b")]),
+          @immut/list.of([
             Local_Get("b"),
             Local_Get("a"),
             Modulo,
             Local_Get("a"),
             Call("gcd"),
-          ],
+          ]),
         ),
-      ],
+      ]),
     },
     Function::{
       name: "fib_aux",
-      params: @immut/list.List::["a", "b", "n"],
+      params: @immut/list.of(["a", "b", "n"]),
       result: 1,
-      locals: @immut/list.List::[],
-      instructions: @immut/list.List::[
+      locals: @immut/list.of([]),
+      instructions: @immut/list.of([
         Local_Get("n"),
         Const(I32(0)),
         Equal,
         If(
           1,
-          @immut/list.List::[Local_Get("b")],
-          @immut/list.List::[
+          @immut/list.of([Local_Get("b")]),
+          @immut/list.of([
             Local_Get("b"),
             Local_Get("a"),
             Local_Get("b"),
@@ -345,42 +347,42 @@ test "eval" {
             Const(I32(1)),
             Sub,
             Call("fib_aux"),
-          ],
+          ]),
         ),
-      ],
+      ]),
     },
     Function::{
       name: "fib",
-      params: @immut/list.List::["n"],
+      params: @immut/list.of(["n"]),
       result: 1,
-      locals: @immut/list.List::[],
-      instructions: @immut/list.List::[
+      locals: @immut/list.of([]),
+      instructions: @immut/list.of([
         Const(I32(0)),
         Const(I32(1)),
         Local_Get("n"),
         Call("fib_aux"),
-      ],
+      ]),
     },
     Function::{
       name: "test_fib",
-      params: @immut/list.List::[],
+      params: @immut/list.of([]),
       result: 0,
-      locals: @immut/list.List::[],
-      instructions: @immut/list.List::[Const(I32(5)), Call("fib"), Call("print_int")],
+      locals: @immut/list.of([]),
+      instructions: @immut/list.of([Const(I32(5)), Call("fib"), Call("print_int")]),
     },
     Function::{
       name: "test_gcd",
-      params: @immut/list.List::[],
+      params: @immut/list.of([]),
       result: 0,
-      locals: @immut/list.List::[],
-      instructions: @immut/list.List::[
+      locals: @immut/list.of([]),
+      instructions: @immut/list.of([
         Const(I32(10)),
         Const(I32(100)),
         Call("gcd"),
         Call("print_int"),
-      ],
+      ]),
     },
-  ]
+  ])
   let test_gcd = Program::{ start: Some("test_gcd"), functions }
   @test.eq(execute(test_gcd), Some("10"))!
   let test_fib = Program::{ start: Some("test_fib"), functions }
@@ -389,29 +391,29 @@ test "eval" {
 
 fn compile_expression(expression : Expression) -> @immut/list.List[Instruction] {
   match expression {
-    Number(i) => @immut/list.List::[Const(I32(i))]
+    Number(i) => @immut/list.of([Const(I32(i))])
     Plus(a, b) =>
-      compile_expression(a).concat(compile_expression(b)).concat(@immut/list.List::[Add])
+      compile_expression(a).concat(compile_expression(b)).concat(@immut/list.of([Add]))
     Minus(a, b) =>
-      compile_expression(a).concat(compile_expression(b)).concat(@immut/list.List::[Sub])
-    _ => @immut/list.List::[]
+      compile_expression(a).concat(compile_expression(b)).concat(@immut/list.of([Sub]))
+    _ => @immut/list.of([])
   }
 }
 
 fn compile(expression : Expression) -> Program {
   Program::{
     start: Some("main"),
-    functions: @immut/list.List::[
+    functions: @immut/list.of([
       Function::{
         name: "main",
-        params: @immut/list.List::[],
+        params: @immut/list.of([]),
         result: 0,
-        locals: @immut/list.List::[],
+        locals: @immut/list.of([]),
         instructions: compile_expression(expression).concat(
-          @immut/list.List::[Call("print_int")],
+          @immut/list.of([Call("print_int")]),
         ),
       },
-    ],
+    ]),
   }
 }
 

@@ -38,25 +38,6 @@ fn or[Value](self : Lexer[Value], parser2 : Lexer[Value]) -> Lexer[Value] {
   })
 }
 
-fn reverse_list[X](list: @immut/list.List[X]) -> @immut/list.List[X] {
-  fn go(acc, xs: @immut/list.List[X]) {
-    match xs {
-      Nil => acc
-      Cons(x, rest) => go((Cons(x, acc) : @immut/list.List[X]), rest)
-    }
-  }
-
-  go(Nil, list)
-}
-
-fn fold_left_list[A, B](list : @immut/list.List[A], f : (B, A) -> B, b : B) -> B {
-  match list {
-    Nil => b
-    Cons(hd, tl) => fold_left_list(tl, f, f(b, hd))
-  }
-}
-
-
 fn many[Value](self: Lexer[Value]) -> Lexer[@immut/list.List[Value]] {
   Lexer(fn(input) {
       let mut rest = input
@@ -70,7 +51,7 @@ fn many[Value](self: Lexer[Value]) -> Lexer[@immut/list.List[Value]] {
           }
         }
       }
-      Some((reverse_list(cumul), rest))
+      Some((cumul.rev(), rest))
   })
 }
 
@@ -110,7 +91,7 @@ let value: Lexer[Token] =
   zero.or(
     one_to_nine.and(zero_to_nine.many())
       .map(fn{
-        (i, ls) => fold_left_list(ls, fn {i, j => i * 10 + j }, i)
+        (i, ls) => ls.fold_left(fn {i, j => i * 10 + j }, init=i)
       })
   ).map(Token::Value)
 
@@ -188,7 +169,7 @@ fn many[Value](self: Parser[Value]) -> Parser[@immut/list.List[Value]] {
         }
       }
     }
-    Some((reverse_list(cumul), i))
+    Some((cumul.rev(), i))
   })
 }
 
@@ -213,25 +194,23 @@ fn parser() -> Parser[Expression] {
       .or(number)
   let combine = automic.and(multiply.or(divide).and(automic).many()).map(fn {
     (expr, list) =>
-      fold_left_list(
-        list,
-        fn{
+      list.fold_left(
+        fn {
           e, (Multiply, expr) => Expression::Multiply(e, expr)
           e, (_, expr)        => Expression::Divide(e, expr)
         },
-        expr
+        init=expr
       )
   })
   
   expression_ref.val = combine.and(plus.or(minus).and(combine).many()).map(fn {
     (expr, list) =>
-      fold_left_list(
-        list, 
-        fn{
+      list.fold_left(
+        fn {
           e, (Plus, expr) => Expression::Plus(e, expr)
           e, (_, expr)    => Expression::Minus(e, expr)
         },
-        expr
+        init=expr
       )
   })
 
@@ -298,18 +277,18 @@ fn recursive_parser_with_tagless_final[E : Expr]() -> Parser[E] {
   }
   fn combine(tokens: @immut/list.List[Token]) -> Option[(E, @immut/list.List[Token])] {
     (Parser(atomic) : Parser[E] ).and(multiply.or(divide).and(Parser(atomic)).many()).map(fn{
-      (e, list) => fold_left_list(list, fn {
+      (e, list) => list.fold_left(fn {
         e, (Multiply, expr) => e * expr
         e, (_, expr) => e / expr
-      }, e)
+      }, init=e)
     }).parse(tokens)
   }
   fn expression(tokens: @immut/list.List[Token]) -> Option[(E, @immut/list.List[Token])] {
     (Parser(combine) : Parser[E] ).and(plus.or(minus).and(Parser(combine)).many()).map(fn{
-      (e, list) => fold_left_list(list, fn {
+      (e, list) => list.fold_left(fn {
         e, (Plus, expr) => e + expr
         e, (_, expr) => e - expr
-      }, e)
+      }, init=e)
     }).parse(tokens)
   }
   Parser(expression)

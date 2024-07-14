@@ -72,13 +72,13 @@ pub fn Map::hash_open_address[K : Hash + Eq + Default + Debug, V : Default + Deb
   // 从键的哈希值向右查找，返回键或第一个找到的空槽位置的索引
   fn find_slot(key : K) -> Int {
     let hash = key.hash()
-    loop hash.mod_u(map.length) {
+    loop hash % map.length {
       i =>
         if physical_equal(map.occupied[i], Occupied) {
           if map.values[i].key == key {
             break i
           } else {
-            continue (i + 1).mod_u(map.length)
+            continue (i + 1) % map.length
           }
         } else {
           break i
@@ -175,7 +175,7 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
 
   fn get(key : K) -> Option[V] {
     let hash = key.hash()
-    loop map.values[hash.mod_u(map.length)] {
+    loop map.values[hash % map.length] {
       Cons(entry, rest) =>
         if entry.key == key {
           break Some(entry.value)
@@ -188,7 +188,7 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
 
   fn put(key : K, value : V) -> Unit {
     let hash = key.hash()
-    let index = hash.mod_u(map.length)
+    let index = hash % map.length
     loop map.values[index] {
       Nil =>
         map.values[index] = {
@@ -209,7 +209,7 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
 
   fn remove(key : K) -> Unit {
     let hash = key.hash()
-    let index = hash.mod_u(map.length)
+    let index = hash % map.length
     loop map.values[index], @immut/list.List::Nil {
       Cons(entry, rest), cumul => {
         if entry.key != key {
@@ -237,40 +237,34 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
   { get, put, remove, size, debug_map }
 }
 
-test "open addressing" {
-  let map : Map[Int, Int] = Map::hash_open_address()
-  test1(map)
-}
-
-test "bucket" {
-  let map : Map[Int, Int] = Map::hash_bucket()
-  test1(map)
-}
-
-fn test1(map : Map[Int, Int]) -> Unit {
+fn test1(map : Map[Int, Int]) -> Unit!String {
   let start = 0
   let end = 200
   for i = start; i < end; i = i + 1 {
     map.put(i, i)
   }
-  assert_true(map.size() == end)
+  @test.is_true(map.size() == end)!
   for i = start; i < end; i = i + 1 {
-    assert_true(map.contains(i))
-    assert_true(map.get(i) == Some(i))
+    @test.is_true(map.contains(i))!
+    @test.is_true(map.get(i) == Some(i))!
   }
   for i = start; i < end; i = i + 2 {
     map.remove(i)
   }
   // (map.debug_map)()
   for i = start + 1; i < end; i = i + 2 {
-    assert_true(map.contains(i))
+    @test.is_true(map.contains(i))!
     map.remove(i)
   }
-  assert_true(map.is_empty())
+  @test.is_true(map.is_empty())!
 }
 
-fn assert_true(b : Bool) -> Unit {
-  if b.not() {
-    abort("")
-  }
+test "open addressing" {
+  let map : Map[Int, Int] = Map::hash_open_address()
+  test1(map)!
+}
+
+test "bucket" {
+  let map : Map[Int, Int] = Map::hash_bucket()
+  test1(map)!
 }
