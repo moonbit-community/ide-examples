@@ -24,7 +24,7 @@ fn fib2(n : Int) -> Int {
 }
 
 /// Calculate the nth Fibonacci number using MoonBit's "loop" construct
-fn fib3(n: Int) -> Int {
+fn fib3(n : Int) -> Int {
   loop n, 0, 1 {
     0, acc2, _ => acc2
     n, acc2, acc1 => continue n - 1, acc1, acc1 + acc2
@@ -32,11 +32,11 @@ fn fib3(n: Int) -> Int {
 }
 
 /// Calculate the nth Fibonacci number using MoonBit's for-loop
-fn fib4(n: Int) -> Int {
-  for
-    i = 0, acc2 = 0, acc1 = 1 // initialize loop variables
-    i < n // loop condition
-    i = i + 1, acc2 = acc1, acc1 = acc1 + acc2 { // update loop variables
+fn fib4(n : Int) -> Int {
+  for i = 0, acc2 = 0, acc1 = 1 // initialize loop variables
+      i < n // loop condition
+      i = i + 1, acc2 = acc1, acc1 = acc1 + acc2 {
+    // update loop variables
   } else {
     acc2
   }

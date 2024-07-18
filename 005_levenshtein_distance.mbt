@@ -8,7 +8,7 @@
 /// This function calculates the Levenshtein distance between two input strings `a` and `b`,
 /// which is defined as the minimum number of single-character edits (insertions, deletions,
 /// or substitutions) required to transform string `a` into string `b`.
-fn levenshtein(a: String, b: String) -> Int {
+fn levenshtein(a : String, b : String) -> Int {
   let m = a.length()
   let n = b.length()
   let s = [[], []]
@@ -25,11 +25,10 @@ fn levenshtein(a: String, b: String) -> Int {
     s[i.land(1)][0] = i
     let mut j = 1
     while j <= n {
-      s[i.land(1)][j] = if a[i-1] == b[j-1] {
+      s[i.land(1)][j] = if a[i - 1] == b[j - 1] {
         s[(i - 1).land(1)][j - 1]
       } else {
-        1 +
-        min(
+        1 + min(
           min(s[(i - 1).land(1)][j - 1], s[(i - 1).land(1)][j]),
           s[i.land(1)][j - 1],
         )
@@ -46,7 +45,10 @@ fn init {
 }
 
 /// Find the minimum of two integers.
-fn min(a: Int, b: Int) -> Int {
-  if a < b { a } else { b }
+fn min(a : Int, b : Int) -> Int {
+  if a < b {
+    a
+  } else {
+    b
+  }
 }
-

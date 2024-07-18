@@ -1,7 +1,7 @@
 /// Since MoonBit considers global mutable variables harmful,
 /// declaring a mutable variable directly in the global scope is not allowed.
-/// 
-/// In some cases where global mutable state is necessary, 
+///
+/// In some cases where global mutable state is necessary,
 /// we can use a struct with mutable fields or use the `Ref` instead.
 
 /// 1. use a struct with mutable fields
@@ -30,7 +30,7 @@ fn init {
 }
 
 /// 2. use the `Ref`
-pub let data : Ref[String] = @ref.ref("Data: ")
+pub let data : Ref[String] = @ref.new("Data: ")
 
 pub fn add_data[T : Show](x : T) -> Unit {
   data.update(fn { y => y + x.to_string() })

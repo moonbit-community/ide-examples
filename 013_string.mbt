@@ -6,7 +6,7 @@ enum T {
 }
 
 /// convert T to string
-fn to_string(self: T) -> String {
+fn to_string(self : T) -> String {
   match self {
     A => "A"
     B => "B"
@@ -20,7 +20,6 @@ fn init {
   // Format strings contain "replacement fields" surrounded by \()
   // Custom data types with the [to_string] method can be spliced directly
   println("Hello a: \(a) & b: \(b) -- wow~")
-
   let c = "string" + " to" + " append"
   println(c)
 

@@ -1,8 +1,8 @@
 // This example demonstrates MoonBit's ability to automatically derive implementations for some traits
 
 struct T {
-  x: Int
-  y: Int
+  x : Int
+  y : Int
 } derive(Eq, Compare, Debug, Show, Default)
 
 fn init {

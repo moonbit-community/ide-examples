@@ -12,10 +12,10 @@ struct Vector[X] {
 fn to_string[T : Show](self : Vector[T]) -> String {
   let mut str = "["
   for i = 0; i <= self.length(); i = i + 1 {
-    str = str + (match self[i] {
-      Some(x) => x.to_string()
-      None => "]"
-    })
+    str = str + match self[i] {
+        Some(x) => x.to_string()
+        None => "]"
+      }
   }
   str
 }
@@ -51,7 +51,7 @@ fn Vector::new[X : Default](len : Int) -> Vector[X] {
 /// `op_get[X](self : Vector[X], i : Int)`
 ///
 /// Get the ith element of vector
-fn op_get[X](self : Vector[X], i : Int) -> Option[X] {
+fn op_get[X](self : Vector[X], i : Int) -> X? {
   if i < self.len {
     Some(self.data[i])
   } else {
@@ -68,11 +68,7 @@ fn push_back_with_default[X](self : Vector[X], elem : X, default : X) -> Unit {
     self.len = self.len + 1
   } else {
     let old_cap = self.capacity()
-    let new_cap = if old_cap == 0 {
-      10
-    } else {
-      old_cap * 2
-    }
+    let new_cap = if old_cap == 0 { 10 } else { old_cap * 2 }
     let new_data = Array::make(new_cap, default)
     for i = 0; i < self.len; i = i + 1 {
       new_data[i] = self.data[i]
@@ -108,4 +104,3 @@ fn init {
   v2.push_back({ x: 42 })
   println(v2)
 }
-
