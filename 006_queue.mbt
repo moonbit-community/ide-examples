@@ -111,7 +111,7 @@ fn Queue::from_array[T](arr : Array[T]) -> Queue[T] {
 }
 
 fn init {
-  let q0 = Queue::[]
+  let q0 = Queue::from_array([])
   if is_empty(q0) {
     let q0 = enqueue(q0, 1)
     match peek(q0) {
@@ -120,7 +120,7 @@ fn init {
     }
   }
 
-  let q1 = Queue::[10, 20, 30]
+  let q1 = Queue::from_array([10, 20, 30])
   match peek(q1) {
     Some(x) => println(x)
     None => println("error")
