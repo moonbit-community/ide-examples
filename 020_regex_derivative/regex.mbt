@@ -120,7 +120,7 @@ fn derivative(self : Regex, c : Symbol) -> Regex {
 }
 
 /// Decides if a string matches a regular expression.
-/// 
+///
 /// This is a simple but slow implementation based on derivative, similar to an interpreter
 pub fn matches(self : Regex, s : String) -> Bool {
   let mut r = self

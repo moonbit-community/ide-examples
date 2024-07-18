@@ -1,6 +1,6 @@
 // This example demonstrate operator overloading in MoonBit.
 // Currently, the following operators can be overloaded in MoonBit:
-// 
+//
 // | operator name        | method name |
 // | -------------------- | ----------- |
 // | `+`                  | `op_add`    |
