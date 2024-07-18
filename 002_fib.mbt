@@ -36,7 +36,7 @@ fn fib4(n : Int) -> Int {
   for i = 0, acc2 = 0, acc1 = 1 // initialize loop variables
       i < n // loop condition
       i = i + 1, acc2 = acc1, acc1 = acc1 + acc2 {
-     // update loop variables
+    // update loop variables
   } else {
     acc2
   }

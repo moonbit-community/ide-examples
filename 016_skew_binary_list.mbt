@@ -4,7 +4,7 @@
 // See Chris Okasaki's book "Purely functional data structure" for more details
 
 fn init {
-  let xs = BList::from_array([ 1, 2, 3, 4, 5 ])
+  let xs = BList::from_array([1, 2, 3, 4, 5])
   debug(xs)
   loop xs.pop() {
     None => ()

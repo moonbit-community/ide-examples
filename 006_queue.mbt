@@ -119,29 +119,26 @@ fn init {
       _ => println("error")
     }
   }
-
   let q1 = Queue::from_array([10, 20, 30])
   match peek(q1) {
     Some(x) => println(x)
     None => println("error")
   }
-
   match dequeue(q1) {
     None => abort("error")
-    Some(q2) => {
+    Some(q2) =>
       match peek(q2) {
         Some(x) => println(x)
         None => println("error")
       }
-    }
   }
-
   let q3 = enqueue(enqueue(from_list(Nil), 1), 2)
   match dequeue(q3) {
-    Some(q4) => match dequeue(q4) {
-      Some(_q5) => println("success")
-      None => println("error")
-    }
+    Some(q4) =>
+      match dequeue(q4) {
+        Some(_q5) => println("success")
+        None => println("error")
+      }
     None => println("error")
   }
 }
