@@ -21,7 +21,6 @@ fn init {
   }
 }
 
-
 /// The type of a non-empty *complete* binary tree.
 enum Tree[X] {
   Leaf(X)
@@ -34,7 +33,7 @@ enum Tree[X] {
 /// which must be `2^tree_height - 1` since the tree is complete
 ///
 /// This operation is `O(log(N))` thanks to completeness of the tree
-fn nth[X](self: Tree[X], tree_size: Int, idx: Int) -> X {
+fn nth[X](self : Tree[X], tree_size : Int, idx : Int) -> X {
   match self {
     Leaf(x) => x // [idx] must be 0
     Branch(first, left, right) =>
@@ -65,7 +64,7 @@ enum BList[X] {
 /// push a new element to the head of a skew binary list
 ///
 /// This operation is `O(1)`
-fn push[X](self: BList[X], elem: X) -> BList[X] {
+fn push[X](self : BList[X], elem : X) -> BList[X] {
   match self {
     Tree(1, left, Tree(1, right, rest)) =>
       // Since 1 is the smallest size in [self],
@@ -82,7 +81,7 @@ fn push[X](self: BList[X], elem: X) -> BList[X] {
 /// pops an element from a skew binary list, returns that element and the remaining list
 ///
 /// This operation is `O(1)`
-fn pop[X](self: BList[X]) -> Option[(X, BList[X])] {
+fn pop[X](self : BList[X]) -> (X, BList[X])? {
   match self {
     Empty => None
     Tree(_, Leaf(x), rest) => Some((x, rest))
@@ -100,7 +99,7 @@ fn pop[X](self: BList[X]) -> Option[(X, BList[X])] {
 /// get the nth element in a skew binary list.
 ///
 /// This operation is `O(log(N))`
-fn op_get[X](self: BList[X], idx: Int) -> Option[X] {
+fn op_get[X](self : BList[X], idx : Int) -> X? {
   match self {
     Empty => None
     Tree(tree_size, tree, rest) =>
@@ -118,28 +117,27 @@ fn op_get[X](self: BList[X], idx: Int) -> Option[X] {
 }
 
 /// compute the length of a skew binary list in `O(log(N))` time
-fn length[X](self: BList[X]) -> Int {
+fn length[X](self : BList[X]) -> Int {
   loop self, 0 {
     Empty, len => len
     Tree(tree_size, _, rest), len => continue rest, tree_size + len
   }
 }
 
-fn BList::from_array[X](xs: Array[X]) -> BList[X] {
+fn BList::from_array[X](xs : Array[X]) -> BList[X] {
   loop xs.length(), BList::Empty {
     0, acc => acc
     i, acc => continue i - 1, acc.push(xs[i - 1])
   }
 }
 
-fn to_array[X](self: BList[X]) -> Array[X] {
-  let arr =
-    match self {
-      Empty => return []
-      Tree(_, Leaf(x), _) | Tree(_, Branch(x, _, _), _) =>
-        Array::make(self.length(), x)
-    }
-  fn push_tree(base_index: Int, tree: Tree[X]) {
+fn to_array[X](self : BList[X]) -> Array[X] {
+  let arr = match self {
+    Empty => return []
+    Tree(_, Leaf(x), _) | Tree(_, Branch(x, _, _), _) =>
+      Array::make(self.length(), x)
+  }
+  fn push_tree(base_index : Int, tree : Tree[X]) {
     match tree {
       Leaf(x) => {
         arr[base_index] = x
@@ -147,11 +145,11 @@ fn to_array[X](self: BList[X]) -> Array[X] {
       }
       Branch(x, left, right) => {
         arr[base_index] = x
-        push_tree(base_index + 1, left)
-        |> push_tree(right)
+        push_tree(base_index + 1, left) |> push_tree(right)
       }
     }
   }
+
   loop self, 0 {
     Empty, _ => arr
     Tree(_, tree, rest), base_index => {
@@ -161,7 +159,7 @@ fn to_array[X](self: BList[X]) -> Array[X] {
   }
 }
 
-fn debug_write[X: Debug](self: BList[X], buf: Buffer) -> Unit {
+fn debug_write[X : Debug](self : BList[X], buf : Buffer) -> Unit {
   buf.write_string("BList::")
   self.to_array().debug_write(buf)
 }

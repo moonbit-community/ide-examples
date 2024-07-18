@@ -1,5 +1,3 @@
-
-
 # How package works in moonbit IDE
 
 - `moon.pkg` is needed

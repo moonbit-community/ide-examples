@@ -1,23 +1,23 @@
 // This example implements a simple functional queue data structure in MoonBit
 
 struct Queue[T] {
-  front:@immut/list.List[T]
-  back:@immut/list.List[T]
+  front : @immut/list.List[T]
+  back : @immut/list.List[T]
 }
 
 /// `from_list[T](front: @immut/list.List[T])`
 ///
 /// Create a queue from a list.
-fn from_list[T](front: @immut/list.List[T]) -> Queue[T] {
-  { front:front, back:Nil }
+fn from_list[T](front : @immut/list.List[T]) -> Queue[T] {
+  { front, back: Nil }
 }
 
 /// `is_empty[T](q: Queue[T])`
 ///
 /// Check if a given queue is empty.
-fn is_empty[T](q: Queue[T]) -> Bool {
+fn is_empty[T](q : Queue[T]) -> Bool {
   match q {
-    {front:Nil, back:Nil} => true
+    { front: Nil, back: Nil } => true
     _ => false
   }
 }
@@ -25,8 +25,8 @@ fn is_empty[T](q: Queue[T]) -> Bool {
 /// `list_rev[T](xs: @immut/list.List[T])`
 ///
 /// Reverse a list using tail-recursive pattern matching.
-fn list_rev[T](xs: @immut/list.List[T]) -> @immut/list.List[T] {
-  fn go(acc, xs: @immut/list.List[T]) {
+fn list_rev[T](xs : @immut/list.List[T]) -> @immut/list.List[T] {
+  fn go(acc, xs : @immut/list.List[T]) {
     match xs {
       Nil => acc
       Cons(x, rest) => go((Cons(x, acc) : @immut/list.List[T]), rest)
@@ -54,9 +54,9 @@ fn list_rev[T](xs: @immut/list.List[T]) -> @immut/list.List[T] {
 /// let result = norm(emptyQueue)
 /// // result will be { front: Nil, back: Nil }
 /// ```
-fn norm[T](q: Queue[T]) -> Queue[T] {
+fn norm[T](q : Queue[T]) -> Queue[T] {
   match q {
-    {front:Nil, back:b} => { front:list_rev(b), back:Nil }
+    { front: Nil, back: b } => { front: list_rev(b), back: Nil }
     q => q
   }
 }
@@ -73,36 +73,36 @@ fn norm[T](q: Queue[T]) -> Queue[T] {
 ///
 /// In the example above, `enqueue` is called to enqueue the element `42` into the queue `q`,
 /// resulting in a new queue `newQ` with the element enqueued at the back.
-fn enqueue[T](q: Queue[T], x: T) -> Queue[T] {
+fn enqueue[T](q : Queue[T], x : T) -> Queue[T] {
   match q {
-    {front:f, back:b} => norm({ front:f, back:Cons(x, b) })
+    { front: f, back: b } => norm({ front: f, back: Cons(x, b) })
   }
 }
 
 /// `peek[T](q: Queue[T])`
 ///
 /// Peek at the front element.
-fn peek[T](q: Queue[T]) -> Option[T] {
+fn peek[T](q : Queue[T]) -> T? {
   match q {
-    {front:Nil, back:_} => None
-    {front:Cons(x, _), back:_} => Some(x)
+    { front: Nil, back: _ } => None
+    { front: Cons(x, _), back: _ } => Some(x)
   }
 }
 
 /// `dequeue[T](q: Queue[T])`
 ///
 /// Dequeues an element from the front of the given queue and returns the resulting queue.
-fn dequeue[T](q: Queue[T]) -> Option[Queue[T]] {
+fn dequeue[T](q : Queue[T]) -> Queue[T]? {
   match q {
-    {front:Nil, back:_} => None
-    {front:Cons(_, f), back:b} => Some(norm({ front:f, back:b }))
+    { front: Nil, back: _ } => None
+    { front: Cons(_, f), back: b } => Some(norm({ front: f, back: b }))
   }
 }
 
 /// `to_list[T](self: Array[T])`
 ///
 /// Convert an array to a linked list using recursion.
-fn Queue::from_array[T](arr: Array[T]) -> Queue[T] {
+fn Queue::from_array[T](arr : Array[T]) -> Queue[T] {
   loop arr.length(), @immut/list.List::Nil {
     0, acc => acc
     i, acc => continue i - 1, @immut/list.List::Cons(arr[i - 1], acc)
@@ -145,4 +145,3 @@ fn init {
     None => println("error")
   }
 }
-

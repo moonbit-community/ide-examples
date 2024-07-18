@@ -17,4 +17,4 @@ export default {
   Runtime: {
     add: (a, b) => a + b,
   },
-}
+};

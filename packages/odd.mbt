@@ -9,4 +9,3 @@ pub fn odd(x : Int) -> Bool {
     _ => even(x - 1)
   }
 }
-

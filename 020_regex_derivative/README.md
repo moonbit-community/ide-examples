@@ -19,4 +19,5 @@ You can find some examples and play with the implementation in `regex_test.mbt`.
 The main code is in `regex.mbt`, and `parser.mbt` contains a simple parser for regular expressions.
 
 ## References
+
 <https://www.khoury.northeastern.edu/home/turon/re-deriv.pdf>

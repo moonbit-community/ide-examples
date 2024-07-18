@@ -13,13 +13,13 @@
 // | `_[_] = _`(set item) | `op_set`    |
 
 pub struct T {
-  x: Int
+  x : Int
 } derive(Debug)
 
 /// `op_add(self: T, other: T)`
 ///
 /// Perform addition operation between two objects of type T.
-pub fn op_add(self: T, other: T) -> T {
+pub fn op_add(self : T, other : T) -> T {
   { x: self.x + other.x }
 }
 
@@ -28,4 +28,3 @@ fn init {
   let b = { x: 2 }
   debug(a + b)
 }
-

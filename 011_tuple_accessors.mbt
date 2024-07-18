@@ -15,4 +15,3 @@ fn init {
   let (a, b) = (100, 200)
   println("a: \(a), b: \(b)")
 }
-
