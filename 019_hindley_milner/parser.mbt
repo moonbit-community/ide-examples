@@ -45,7 +45,7 @@ fn lexeme(self : Tokenizer) -> String {
   if len <= 0 {
     return ""
   }
-  let b = Bytes::make(len)
+  let b = Bytes::make(len, b'\x00')
   for i = 0; i < len; i = i + 1 {
     b[i] = self.src[self.token_start + i].to_int().to_byte()
   }
