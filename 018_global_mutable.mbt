@@ -30,7 +30,7 @@ fn init {
 }
 
 /// 2. use the `Ref`
-pub let data : Ref[String] = @ref.ref("Data: ")
+pub let data : Ref[String] = @ref.new("Data: ")
 
 pub fn add_data[T : Show](x : T) -> Unit {
   data.update(fn { y => y + x.to_string() })
