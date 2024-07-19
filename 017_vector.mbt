@@ -20,6 +20,10 @@ fn to_string[T : Show](self : Vector[T]) -> String {
   str
 }
 
+fn output[T : Show](self : Vector[T], logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
+
 /// `length[X](self : Vector[X])`
 ///
 /// Get length of a vector

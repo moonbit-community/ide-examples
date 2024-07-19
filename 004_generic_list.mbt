@@ -131,3 +131,7 @@ fn to_string[T : Show](self : List[T]) -> String {
 
   "[" + go(self) + "]"
 }
+
+fn output[T : Show](self : List[T], logger : Logger) -> Unit {
+  logger.write_string(self.to_string())
+}
