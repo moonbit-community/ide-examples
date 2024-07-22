@@ -385,7 +385,7 @@ fn print_bucket[K : Show, V : Show](self : Bucket[K, V]) -> Unit {
   }
 }
 
-fn init {
+fn main {
   let n = 100000
   let mut hamt = make()
   for i = 0; i < n; i = i + 1 {

@@ -6,7 +6,7 @@ fn 😀(self : T) -> Unit {
   debug(self)
 }
 
-fn init {
+fn main {
   let 🤣 = T::T(3)
   🤣.😀()
 }

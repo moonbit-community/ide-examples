@@ -9,7 +9,7 @@ fn add(x : Int, y : Int) -> Int = "Runtime" "add"
 
 fn sqrt(n : Double) -> Double = "(func (param $n f64) (result f64) (f64.sqrt (local.get $n)))"
 
-fn init {
+fn main {
   println(answer())
   println(random())
   println(get_pi())

@@ -5,7 +5,7 @@ struct T {
   y : Int
 } derive(Eq, Compare, Debug, Show, Default)
 
-fn init {
+fn main {
   let t1 = T::default()
   let t2 = { x: 1, y: 1 }
   println(t1) // {x: 0, y: 0}

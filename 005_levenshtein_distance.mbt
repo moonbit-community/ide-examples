@@ -40,7 +40,7 @@ fn levenshtein(a : String, b : String) -> Int {
   s[m.land(1)][n]
 }
 
-fn init {
+fn main {
   println(levenshtein("abcdheloworldabcd", "abcdhellowoorldabcd"))
 }
 

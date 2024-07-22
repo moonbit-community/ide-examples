@@ -1,7 +1,7 @@
 // This example implements a generic linked list data structure,
 // and various operations on it in MoonBit
 
-fn init {
+fn main {
   let ls = List::from_array([1, 2, 3, 4, 5]) // create a new List
   .map(fn { x => x * 2 }) // double each element
   .filter(fn { x => x < 9 }) // pick those smaller than 9

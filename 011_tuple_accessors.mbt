@@ -1,7 +1,7 @@
 // This example demonstrates tuple accessor in MoonBit.
 // The components of tuple can be extracted directly via [.index] (zero based)
 
-fn init {
+fn main {
   // access via index
   let x = (1, 2)
   println(x.0) // 1

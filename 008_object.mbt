@@ -32,7 +32,7 @@ fn speak_together(xs : Array[Animal]) -> Unit {
   }
 }
 
-fn init {
+fn main {
   let duck1 = Duck::{ name: "duck1" }
   let fox1 = Fox::{ name: "fox1" }
   let duck2 = Duck::{ name: "duck2" }

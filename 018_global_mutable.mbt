@@ -21,7 +21,7 @@ pub fn log[T : Show](x : T) -> Unit {
   context.log += x.to_string()
 }
 
-fn init {
+fn main {
   log("Get a UUID: ")
   log(fresh_uuid())
   log(", another UUID: ")
@@ -36,7 +36,7 @@ pub fn add_data[T : Show](x : T) -> Unit {
   data.update(fn { y => y + x.to_string() })
 }
 
-fn init {
+fn main {
   add_data("Hello, ")
   add_data("ref")
   println(data.val)

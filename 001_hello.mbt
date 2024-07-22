@@ -1,4 +1,4 @@
-fn init {
+fn main {
   let greeting =
     #|
     #|     (\(\

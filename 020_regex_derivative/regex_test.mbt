@@ -1,4 +1,4 @@
-fn init {
+fn main {
   println("===")
   test1(chr('A') * star(chr('a') + chr('A')), ["AaAAa", "A", "a", "Aab"])
   println("===")
