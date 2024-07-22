@@ -42,7 +42,7 @@ fn fib4(n : Int) -> Int {
   }
 }
 
-fn init {
+fn main {
   println(fib(3))
   println(fib2(46))
   println(fib3(46))

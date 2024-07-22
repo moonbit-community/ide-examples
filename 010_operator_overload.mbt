@@ -23,7 +23,7 @@ pub fn op_add(self : T, other : T) -> T {
   { x: self.x + other.x }
 }
 
-fn init {
+fn main {
   let a = { x: 0 }
   let b = { x: 2 }
   debug(a + b)

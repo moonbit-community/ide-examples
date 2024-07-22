@@ -98,7 +98,7 @@ fn T::default() -> T {
   { x: 0 }
 }
 
-fn init {
+fn main {
   let v1 : Vector[Int] = Vector::new(5)
   println(v1)
   v1.push_back(42)

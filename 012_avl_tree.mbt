@@ -172,7 +172,7 @@ fn mem[U : Compare](self : T[U], x : U) -> Bool {
   }
 }
 
-fn init {
+fn main {
   let mut v : T[Int] = Empty // Create an empty AVL tree with Int type
   let iter = 100
 

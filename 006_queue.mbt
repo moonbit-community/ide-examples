@@ -110,7 +110,7 @@ fn Queue::from_array[T](arr : Array[T]) -> Queue[T] {
   |> from_list
 }
 
-fn init {
+fn main {
   let q0 = Queue::from_array([])
   if is_empty(q0) {
     let q0 = enqueue(q0, 1)

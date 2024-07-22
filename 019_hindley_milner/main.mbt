@@ -9,7 +9,7 @@
 // The type checker supports higher kinded polymorphism via constructor classes.
 // You can play with more complex examples by adding more primitives to [prelude] below.
 
-fn init {
+fn main {
   run(
     #| let id = fun x -> x in
     #| id id

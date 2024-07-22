@@ -27,7 +27,7 @@ struct Point[N] {
   y : N
 } derive(Debug)
 
-fn init {
+fn main {
   let xs = [1, 2, 3, 4, 5]
   debug(average(xs))
   let ps : Array[Point[Int]] = [

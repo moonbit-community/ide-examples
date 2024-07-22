@@ -13,7 +13,7 @@ fn to_string(self : T) -> String {
   }
 }
 
-fn init {
+fn main {
   let a = T::A
   let b = T::B
 

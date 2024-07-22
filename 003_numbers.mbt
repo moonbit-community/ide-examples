@@ -1,6 +1,6 @@
 // This example demonstrates number literals in MoonBit
 
-fn init {
+fn main {
   println(1234) // 1234
 
   // Underscores can be placed anywhere within a number.
