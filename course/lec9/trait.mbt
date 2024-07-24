@@ -93,7 +93,7 @@ fn init {
 }
 // We define a type Map[Key, Value], which is actually List[(Key, Value)] inside
 // 我们定义一个类型Map，其实际值为List[(Key, Value)]
-type Map[Key, Value] List[(Key, Value)]
+type Map[Key, Value] @immut/list.List[(Key, Value)]
 
 // Create Map 创建表
 fn Map::make[Key, Value]() -> Map[Key, Value] { 
@@ -108,7 +108,7 @@ fn put[Key, Value](map: Map[Key, Value], key: Key, value: Value) -> Map[Key, Val
 
 // Get the value corresponding the given key 获取键对应值
 fn get[Key: Eq, Value](map : Map[Key, Value], key : Key) -> Option[Value] {
-  fn aux(list : List[(Key, Value)]) -> Option[Value] {
+  fn aux(list : @immut/list.List[(Key, Value)]) -> Option[Value] {
     match list {
       Nil => None
       Cons((k, v), tl) => if k == key { // Key implements Eq so == can be used Key实现了Eq接口，因此可以利用==比较

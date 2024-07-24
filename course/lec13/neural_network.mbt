@@ -100,14 +100,14 @@ fn train(param_hidden : Array[Array[Double]],
         param_output : Array[Array[Double]], step : Double) -> Unit {
   let diff_hidden : Array[Array[Double]] = Array::make(
     param_hidden.length(),
-    Array::default(),
+    [],
   )
   for i = 0; i < diff_hidden.length(); i = i + 1 {
     diff_hidden[i] = Array::make(param_hidden[i].length(), 0.0)
   }
   let backward_hidden : Array[Array[Backward]] = Array::make(
     param_hidden.length(),
-    Array::default(),
+    [],
   )
   for i = 0; i < param_hidden.length(); i = i + 1 {
     backward_hidden[i] = Array::make(
@@ -124,14 +124,14 @@ fn train(param_hidden : Array[Array[Double]],
   }
   let diff_output : Array[Array[Double]] = Array::make(
     param_output.length(),
-    Array::default(),
+    [],
   )
   for i = 0; i < diff_output.length(); i = i + 1 {
     diff_output[i] = Array::make(param_output[i].length(), 0.0)
   }
   let backward_output : Array[Array[Backward]] = Array::make(
     param_output.length(),
-    Array::default(),
+    [],
   )
   for i = 0; i < param_output.length(); i = i + 1 {
     backward_output[i] = Array::make(
@@ -159,11 +159,11 @@ fn train(param_hidden : Array[Array[Double]],
 }
 
 fn init {
-  let hidden_layer : Array[Array[Double]] = Array::make(4, Array::default())
+  let hidden_layer : Array[Array[Double]] = Array::make(4, [])
   for i = 0; i < hidden_layer.length(); i = i + 1 {
     hidden_layer[i] = Array::make(5, 0.2)
   }
-  let output_layer : Array[Array[Double]] = Array::make(3, Array::default())
+  let output_layer : Array[Array[Double]] = Array::make(3, [])
   for i = 0; i < output_layer.length(); i = i + 1 {
     output_layer[i] = Array::make(5, 0.2)
   }

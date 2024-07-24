@@ -38,7 +38,7 @@ fn accept_a(a: A) -> Bool {
 // let not_accepted: Bool = accept_a(({ val : 1, other : 2 }: B)) 
 let a_accepted: Bool = accept_a(({other: 2, val: 1}: A))
 
-fn head_opt(list: List[Int]) -> Option[Int] {
+fn head_opt(list: @immut/list.List[Int]) -> Option[Int] {
   match list {
     Nil => None
     Cons(head, tail) => Some(head)
@@ -60,7 +60,7 @@ fn is_zero(i: Int) -> Bool {
   }
 }
 
-fn contains_zero(l: List[Int]) -> Bool {
+fn contains_zero(l: @immut/list.List[Int]) -> Bool {
   match l {
     Nil => false
     Cons(0, _) => true
@@ -81,7 +81,7 @@ fn baby_name(info: PersonalInfo) -> Option[String] {
   }
 }
 
-fn zip(l1: List[Int], l2: List[Char]) -> List[(Int ,Char)] {
+fn zip(l1: @immut/list.List[Int], l2: @immut/list.List[Char]) -> @immut/list.List[(Int ,Char)] {
   match (l1, l2) {
     _ => Nil // Wrong order, making the following two lines unreachable 顺序错误，使得下方两行代码无法到达
     (Cons(hd, tl), Cons(hd2, tl2)) => Cons((hd, hd2), zip(tl, tl2))
