@@ -14,7 +14,7 @@
 
 pub struct T {
   x : Int
-} derive(Debug)
+} derive(Show)
 
 /// `op_add(self: T, other: T)`
 ///
@@ -26,5 +26,5 @@ pub fn op_add(self : T, other : T) -> T {
 fn main {
   let a = { x: 0 }
   let b = { x: 2 }
-  debug(a + b)
+  println(a + b)
 }

@@ -4,7 +4,7 @@ enum Symbol {
   Var(Int)
   Add(Symbol, Symbol)
   Mul(Symbol, Symbol)
-} derive(Debug)
+} derive(Show)
 
 fn Symbol::constant(d : Double) -> Symbol {
   Constant(d)
@@ -65,11 +65,11 @@ fn init {
   let input = [10.0, 100.0]
   println("Symbolic differentiation 符号微分")
   let symbol : Symbol = example()
-  debug(symbol.compute(input))
+  println(symbol.compute(input))
   println("Expression of df/dx 关于x的偏微分表达式树")
-  debug(symbol.differentiate(0))
-  debug(symbol.differentiate(0).compute(input))
-  debug(symbol.differentiate(1).compute(input))
+  println(symbol.differentiate(0))
+  println(symbol.differentiate(0).compute(input))
+  println(symbol.differentiate(1).compute(input))
   println("======")
 }
 
@@ -82,11 +82,11 @@ trait Number  {
 }
 
 // Implement abstraction for Double 对浮点数实现抽象
-fn Number::constant(d : Double) -> Double {
+impl Number for Double with constant(d : Double) -> Double {
   d
 }
 
-fn Number::value(d : Double) -> Double {
+impl Number for Double with value(d : Double) -> Double {
   d
 }
 
@@ -107,7 +107,7 @@ fn relu[N : Number](x : N) -> N {
 struct Forward {
   value : Double
   derivative : Double
-} derive(Debug)
+} derive(Show)
 
 fn Forward::constant(d : Double) -> Forward {
   { value: d, derivative: 0.0 }
@@ -139,12 +139,12 @@ fn Forward::value(f : Forward) -> Double {
 
 fn init {
   println("Compute using abstraction 利用抽象进行计算值")
-  debug(relu(10.0))
-  debug(relu(-10.0))
+  println(relu(10.0))
+  println(relu(-10.0))
   println("Forward differentiation with abstraction 利用抽象进行前向微分")
-  debug(relu(Forward::var(10.0, true)))
-  debug(relu(Forward::var(-10.0, true)))
-  Forward::var(10.0, false) * Forward::var(100.0, true) |> debug // f(x, y) = x * y, 求df/dy(10, 100)
+  println(relu(Forward::var(10.0, true)))
+  println(relu(Forward::var(-10.0, true)))
+  Forward::var(10.0, false) * Forward::var(100.0, true) |> println // f(x, y) = x * y, 求df/dy(10, 100)
   println("======")
 }
 
@@ -196,8 +196,8 @@ fn init {
   let x = Backward::var(10.0, diff_x)
   let y = Backward::var(100.0, diff_y)
   (x * y).backward(1.0) // df / df = 1
-  debug(diff_x)
-  debug(diff_y)
+  println(diff_x)
+  println(diff_y)
   println("======")
 }
 fn example_newton[N : Number](x : N) -> N {
@@ -223,5 +223,5 @@ fn init {
       continue Forward::var(x.value - value / derivative, true) // continue the loop 继续循环
     }
   }
-  |> debug
+  |> println
 }

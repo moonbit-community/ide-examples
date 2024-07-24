@@ -25,11 +25,11 @@ fn average[N : Number](xs : Array[N]) -> N {
 struct Point[N] {
   x : N
   y : N
-} derive(Debug)
+} derive(Show)
 
 fn main {
   let xs = [1, 2, 3, 4, 5]
-  debug(average(xs))
+  println(average(xs))
   let ps : Array[Point[Int]] = [
     { x: 1, y: 5 },
     { x: 2, y: 4 },
@@ -37,7 +37,7 @@ fn main {
     { x: 4, y: 2 },
     { x: 5, y: 1 },
   ]
-  debug(average(ps))
+  println(average(ps))
   let ps2 : Array[Point[Double]] = [
     { x: 1.25, y: 5.25 },
     { x: 2.25, y: 4.25 },
@@ -45,7 +45,7 @@ fn main {
     { x: 4.25, y: 2.25 },
     { x: 5.25, y: 1.25 },
   ]
-  debug(average(ps2))
+  println(average(ps2))
 }
 
 // implement [Number] for [Point]
@@ -83,10 +83,6 @@ fn op_neg[N : Number](self : Point[N]) -> Point[N] {
 // To handle this kind of scenario, MoonBit provides a mechanism called extension methods.
 // Extension methods allow you to implement new traits for foreign types, if you are the owner of the trait.
 // Extension methods can only be used to implement the specified trait, and cannot be called via dot-syntax directly
-fn Number::from_int(x : Int) -> Int {
-  x
-}
+impl Number for Int with from_int(x : Int) -> Int { x }
 
-fn Number::from_int(x : Int) -> Double {
-  x.to_double()
-}
+impl Number for Double with from_int(x : Int) -> Double { x.to_double() }

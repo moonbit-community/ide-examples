@@ -1,9 +1,9 @@
 // This example demonstrates unicode support in MoonBit
 
-type T Int derive(Debug)
+type T Int derive(Show)
 
 fn 😀(self : T) -> Unit {
-  debug(self)
+  println(self)
 }
 
 fn main {

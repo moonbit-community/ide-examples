@@ -1,4 +1,4 @@
-trait Base  {
+trait Base {
   constant(Double) -> Self
   value(Self) -> Double
   op_add(Self, Self) -> Self
@@ -29,8 +29,10 @@ fn softmax[T : Base](inputs : Array[T]) -> Array[T] {
   outputs
 }
 
-fn input2hidden[T : Base](inputs : Array[Double], param : Array[Array[T]]) ->
-     Array[T] {
+fn input2hidden[T : Base](
+  inputs : Array[Double],
+  param : Array[Array[T]]
+) -> Array[T] {
   let outputs : Array[T] = Array::make(param.length(), T::constant(0.0))
   for output = 0; output < param.length(); output = output + 1 {
     for input = 0; input < inputs.length(); input = input + 1 {
@@ -42,8 +44,10 @@ fn input2hidden[T : Base](inputs : Array[Double], param : Array[Array[T]]) ->
   outputs
 }
 
-fn hidden2output[T : Base](inputs : Array[T], param : Array[Array[T]]) ->
-     Array[T] {
+fn hidden2output[T : Base](
+  inputs : Array[T],
+  param : Array[Array[T]]
+) -> Array[T] {
   let outputs : Array[T] = Array::make(param.length(), T::constant(0.0))
   for output = 0; output < param.length(); output = output + 1 {
     for input = 0; input < inputs.length(); input = input + 1 {
@@ -54,12 +58,15 @@ fn hidden2output[T : Base](inputs : Array[T], param : Array[Array[T]]) ->
   outputs |> softmax
 }
 
-fn compute[T : Base](inputs : Array[Double], param_hidden : Array[Array[T]],
-        param_output : Array[Array[T]]) -> Array[T] {
+fn compute[T : Base](
+  inputs : Array[Double],
+  param_hidden : Array[Array[T]],
+  param_output : Array[Array[T]]
+) -> Array[T] {
   inputs |> input2hidden(param_hidden) |> hidden2output(param_output)
 }
 
-trait Log  {
+trait Log {
   log(Self) -> Self // 用于计算交叉熵
 }
 
@@ -79,16 +86,22 @@ fn verify[N : Base](result : Array[N], expected : Int) -> Bool {
   }
 }
 
-fn diff(inputs : Array[Double], expected : Int,
-        param_hidden : Array[Array[Backward]],
-        param_output : Array[Array[Backward]]) -> Unit {
+fn diff(
+  inputs : Array[Double],
+  expected : Int,
+  param_hidden : Array[Array[Backward]],
+  param_output : Array[Array[Backward]]
+) -> Unit {
   let result = compute(inputs, param_hidden, param_output)
     |> cross_entropy(expected)
   result.backward(1.0)
 }
 
-fn update(params : Array[Array[Double]], diff : Array[Array[Double]],
-        step : Double) -> Unit {
+fn update(
+  params : Array[Array[Double]],
+  diff : Array[Array[Double]],
+  step : Double
+) -> Unit {
   for i = 0; i < params.length(); i = i + 1 {
     for j = 0; j < params[i].length(); j = j + 1 {
       params[i][j] = params[i][j] - step * diff[i][j]
@@ -96,18 +109,19 @@ fn update(params : Array[Array[Double]], diff : Array[Array[Double]],
   }
 }
 
-fn train(param_hidden : Array[Array[Double]],
-        param_output : Array[Array[Double]], step : Double) -> Unit {
-  let diff_hidden : Array[Array[Double]] = Array::make(
-    param_hidden.length(),
-    Array::default(),
+fn train(
+  param_hidden : Array[Array[Double]],
+  param_output : Array[Array[Double]],
+  step : Double
+) -> Unit {
+  let diff_hidden : Array[Array[Double]] = Array::new(
+    capacity=param_hidden.length(),
   )
   for i = 0; i < diff_hidden.length(); i = i + 1 {
     diff_hidden[i] = Array::make(param_hidden[i].length(), 0.0)
   }
-  let backward_hidden : Array[Array[Backward]] = Array::make(
-    param_hidden.length(),
-    Array::default(),
+  let backward_hidden : Array[Array[Backward]] = Array::new(
+    capacity=param_hidden.length(),
   )
   for i = 0; i < param_hidden.length(); i = i + 1 {
     backward_hidden[i] = Array::make(
@@ -122,16 +136,14 @@ fn train(param_hidden : Array[Array[Double]],
       }
     }
   }
-  let diff_output : Array[Array[Double]] = Array::make(
-    param_output.length(),
-    Array::default(),
+  let diff_output : Array[Array[Double]] = Array::new(
+    capacity=param_output.length(),
   )
   for i = 0; i < diff_output.length(); i = i + 1 {
     diff_output[i] = Array::make(param_output[i].length(), 0.0)
   }
-  let backward_output : Array[Array[Backward]] = Array::make(
-    param_output.length(),
-    Array::default(),
+  let backward_output : Array[Array[Backward]] = Array::new(
+    capacity=param_output.length(),
   )
   for i = 0; i < param_output.length(); i = i + 1 {
     backward_output[i] = Array::make(
@@ -159,11 +171,11 @@ fn train(param_hidden : Array[Array[Double]],
 }
 
 fn init {
-  let hidden_layer : Array[Array[Double]] = Array::make(4, Array::default())
+  let hidden_layer : Array[Array[Double]] = Array::new(capacity=4)
   for i = 0; i < hidden_layer.length(); i = i + 1 {
     hidden_layer[i] = Array::make(5, 0.2)
   }
-  let output_layer : Array[Array[Double]] = Array::make(3, Array::default())
+  let output_layer : Array[Array[Double]] = Array::new(capacity=3)
   for i = 0; i < output_layer.length(); i = i + 1 {
     output_layer[i] = Array::make(5, 0.2)
   }
@@ -179,13 +191,9 @@ fn init {
   for i = 0, correct = 0, wrong = 0; i < test_dataset.length(); {
     let result = compute(test_dataset[i].input, hidden_layer, output_layer)
     if verify(result, test_dataset[i].expected) {
-      continue i + 1,
-        correct + 1,
-        wrong
+      continue i + 1, correct + 1, wrong
     } else {
-      continue i + 1,
-        correct,
-        wrong + 1
+      continue i + 1, correct, wrong + 1
     }
   } else {
     println("correct \(correct) wrong \(wrong)")
