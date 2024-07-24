@@ -3,7 +3,7 @@
 struct T {
   x : Int
   y : Int
-} derive(Eq, Compare, Debug, Show, Default)
+} derive(Eq, Compare, Show, Default)
 
 fn main {
   let t1 = T::default()

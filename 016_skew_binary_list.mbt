@@ -5,19 +5,19 @@
 
 fn main {
   let xs = BList::from_array([1, 2, 3, 4, 5])
-  debug(xs)
+  println(xs)
   loop xs.pop() {
     None => ()
     Some((x, xs)) => {
-      debug(x)
+      println(x)
       continue xs.pop()
     }
   }
   // note that [xs] is untouched since [BList] is functional
   let xs = xs.push(6).push(7)
-  debug(xs)
+  println(xs)
   for i = 0; i < xs.length(); i = i + 1 {
-    debug(xs[i])
+    println(xs[i])
   }
 }
 
@@ -25,7 +25,7 @@ fn main {
 enum Tree[X] {
   Leaf(X)
   Branch(X, Tree[X], Tree[X])
-}
+} derive(Show)
 
 /// get the in-order nth element in a binary tree.
 ///
@@ -59,7 +59,7 @@ fn nth[X](self : Tree[X], tree_size : Int, idx : Int) -> X {
 enum BList[X] {
   Empty
   Tree(Int, Tree[X], BList[X])
-}
+} derive(Show)
 
 /// push a new element to the head of a skew binary list
 ///
@@ -157,9 +157,4 @@ fn to_array[X](self : BList[X]) -> Array[X] {
       continue rest, new_index
     }
   }
-}
-
-fn debug_write[X : Debug](self : BList[X], buf : Buffer) -> Unit {
-  buf.write_string("BList::")
-  self.to_array().debug_write(buf)
 }

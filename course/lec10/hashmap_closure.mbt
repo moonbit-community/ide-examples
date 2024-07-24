@@ -1,12 +1,12 @@
 struct Map[K, V] {
-  get : (K) -> Option[V]
+  get : (K) -> V?
   put : (K, V) -> Unit
   remove : (K) -> Unit
   size : () -> Int
   debug_map : () -> Unit
 }
 
-pub fn Map::get[K, V](map : Map[K, V], key : K) -> Option[V] {
+pub fn Map::get[K, V](map : Map[K, V], key : K) -> V? {
   (map.get)(key)
 }
 
@@ -36,26 +36,26 @@ pub fn Map::contains[K, V](map : Map[K, V], key : K) -> Bool {
 priv struct Entry[K, V] {
   key : K
   mut value : V
-} derive(Default, Debug)
+} derive(Default, Show)
 
 priv struct HT_open[K, V] {
   mut values : Array[Entry[K, V]]
   mut occupied : Array[Status]
   mut length : Int
   mut size : Int
-} derive(Debug)
+} derive(Show)
 
 enum Status {
   Empty
   Deleted
   Occupied
-} derive(Debug)
+} derive(Show)
 
 /// HashMap based on open addressing 哈希表：开放地址实现
 /// 
 /// Invariant : there's no empty slots between where a key should be stored and where it is stored
 /// 条件：从键的哈希值开始直到键的实际存储位置之间没有任何的空槽
-pub fn Map::hash_open_address[K : Hash + Eq + Default + Debug, V : Default + Debug]() ->
+pub fn Map::hash_open_address[K : Hash + Eq + Default + Show, V : Default + Show]() ->
      Map[K, V] {
   let initial_length = 10
   // load of the hash map 哈希表的负载
@@ -72,13 +72,13 @@ pub fn Map::hash_open_address[K : Hash + Eq + Default + Debug, V : Default + Deb
   // 从键的哈希值向右查找，返回键或第一个找到的空槽位置的索引
   fn find_slot(key : K) -> Int {
     let hash = key.hash()
-    loop hash.mod_u(map.length) {
+    loop hash % map.length {
       i =>
         if physical_equal(map.occupied[i], Occupied) {
           if map.values[i].key == key {
             break i
           } else {
-            continue (i + 1).mod_u(map.length)
+            continue (i + 1) % map.length
           }
         } else {
           break i
@@ -99,7 +99,7 @@ pub fn Map::hash_open_address[K : Hash + Eq + Default + Debug, V : Default + Deb
     }
   }
 
-  fn get(key : K) -> Option[V] {
+  fn get(key : K) -> V? {
     let index = find_slot(key)
     if physical_equal(map.occupied[index], Occupied) {
       Some(map.values[index].value)
@@ -136,20 +136,20 @@ pub fn Map::hash_open_address[K : Hash + Eq + Default + Debug, V : Default + Deb
   }
 
   fn debug_map() -> Unit {
-    debug(map)
+    println(map)
   }
 
   { get, put, remove, size, debug_map }
 }
 
 priv struct HT_bucket[K, V] {
-  mut values : Array[List[Entry[K, V]]]
+  mut values : Array[@immut/list.T[Entry[K, V]]]
   mut length : Int
   mut size : Int
-} derive(Debug)
+} derive(Show)
 
 /// HashMap based on linked list 哈希表：链表实现
-pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
+pub fn Map::hash_bucket[K : Hash + Eq + Show, V : Show]() -> Map[K, V] {
   let initial_length = 10
   let load = 0.75
   let map : HT_bucket[K, V] = {
@@ -173,9 +173,9 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
     }
   }
 
-  fn get(key : K) -> Option[V] {
+  fn get(key : K) -> V? {
     let hash = key.hash()
-    loop map.values[hash.mod_u(map.length)] {
+    loop map.values[hash % map.length] {
       Cons(entry, rest) =>
         if entry.key == key {
           break Some(entry.value)
@@ -188,7 +188,7 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
 
   fn put(key : K, value : V) -> Unit {
     let hash = key.hash()
-    let index = hash.mod_u(map.length)
+    let index = hash % map.length
     loop map.values[index] {
       Nil =>
         map.values[index] = {
@@ -209,12 +209,11 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
 
   fn remove(key : K) -> Unit {
     let hash = key.hash()
-    let index = hash.mod_u(map.length)
-    loop map.values[index], List::Nil {
+    let index = hash % map.length
+    loop map.values[index], @immut/list.T::Nil {
       Cons(entry, rest), cumul => {
         if entry.key != key {
-          continue rest,
-            Cons(entry, cumul)
+          continue rest, Cons(entry, cumul)
         }
         map.values[index] = loop cumul, rest {
           Nil, rest => break rest
@@ -231,7 +230,7 @@ pub fn Map::hash_bucket[K : Hash + Eq + Debug, V : Debug]() -> Map[K, V] {
   }
 
   fn debug_map() -> Unit {
-    debug(map)
+    println(map)
   }
 
   { get, put, remove, size, debug_map }

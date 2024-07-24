@@ -3,13 +3,13 @@ enum Type {
   T_Lam(Type, Type)
   T_Con(String)
   T_App(Type, Type)
-} derive(Debug)
+} derive(Show)
 
 enum Tvar {
   Free(Int, Int)
   Generic(Int)
   Solved(Type)
-} derive(Debug)
+} derive(Show)
 
 enum Expr {
   Var(String)
@@ -17,7 +17,7 @@ enum Expr {
   Lam(String, Expr)
   App(Expr, Expr)
   Let(String, Expr, Expr)
-} derive(Debug)
+} derive(Show)
 
 // type operations
 let counter : Ref[Int] = { val: 0 }

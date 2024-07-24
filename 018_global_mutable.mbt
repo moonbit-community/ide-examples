@@ -26,7 +26,7 @@ test {
   log(fresh_uuid())
   log(", another UUID: ")
   log(fresh_uuid())
-  inspect(context.log, content="Get a UUID: 1, another UUID: 2")!
+  inspect!(context.log, content="Get a UUID: 1, another UUID: 2")
 }
 
 /// 2. use the `Ref`
@@ -39,5 +39,5 @@ pub fn add_data[T : Show](x : T) -> Unit {
 test {
   add_data("Hello, ")
   add_data("ref")
-  inspect(data.val, content="Data: Hello, ref")!
+  inspect!(data.val, content="Data: Hello, ref")
 }

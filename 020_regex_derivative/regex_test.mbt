@@ -19,6 +19,6 @@ fn test1(r : Regex, tests : Array[String]) -> Unit {
   // uncomment this line to see the compiled state machine
   // c.dump()
   for i = 0; i < tests.length(); i = i + 1 {
-    debug((r.matches(tests[i]), c.matches(tests[i])))
+    println((r.matches(tests[i]), c.matches(tests[i])))
   }
 }

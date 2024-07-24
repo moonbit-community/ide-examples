@@ -92,7 +92,7 @@ fn push_back[X : Default](self : Vector[X], elem : X) -> Unit {
 
 struct T {
   x : Int
-} derive(Debug, Show)
+} derive(Show)
 
 fn T::default() -> T {
   { x: 0 }

@@ -11,7 +11,7 @@ enum Token {
   LPAREN
   RPAREN
   EOF
-} derive(Debug, Eq)
+} derive(Show, Eq)
 
 struct Tokenizer {
   mut token_start : Int
@@ -164,7 +164,7 @@ fn parse_simple_expr(self : Tokenizer) -> Result[Expr, String] {
     token => {
       let b = Buffer::new(size_hint=17)
       b.write_string("unexpected token \"")
-      token.debug_write(b)
+      token.output(b)
       b.write_string("\", expecting simple expression")
       Err(b.to_string())
     }
@@ -177,7 +177,7 @@ fn expect_ident(self : Tokenizer) -> Result[String, String] {
     token => {
       let b = Buffer::new(size_hint=17)
       b.write_string("unexpected token \"")
-      token.debug_write(b)
+      token.output(b)
       b.write_string("\", expecting identifier")
       Err(b.to_string())
     }
@@ -191,9 +191,9 @@ fn expect_token(self : Tokenizer, tok : Token) -> Result[Unit, String] {
   } else {
     let b = Buffer::new(size_hint=17)
     b.write_string("unexpected token \"")
-    next_tok.debug_write(b)
+    next_tok.output(b)
     b.write_string("\", expecting \"")
-    tok.debug_write(b)
+    tok.output(b)
     b.write_string("\"")
     Err(b.to_string())
   }
