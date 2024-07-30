@@ -45,50 +45,45 @@ fn repr(self : Type) -> Type {
   }
 }
 
-fn check_occurs(self : Type, tag : Int, lvl : Int) -> Result[Unit, String] {
+fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!String {
   match self.repr() {
     T_Var({ val: Free(my_tag, my_lvl) } as tvar) =>
       if tag == my_tag {
-        return Err("occurs check")
+        raise "occurs check"
       } else if lvl < my_lvl {
         tvar.val = Free(my_tag, lvl)
       }
     T_Var(_) => abort("impossible")
     T_Lam(t1, t2) | T_App(t1, t2) => {
-      t1.check_occurs(tag, lvl)?
-      t2.check_occurs(tag, lvl)?
+      t1.check_occurs!(tag, lvl)
+      t2.check_occurs!(tag, lvl)
     }
     T_Con(_) => ()
   }
-  Ok(())
 }
 
-fn unify(t1 : Type, t2 : Type) -> Result[Unit, String] {
+fn unify(t1 : Type, t2 : Type) -> Unit!String {
   match (t1.repr(), t2.repr()) {
     (T_Var({ val: Free(tag, lvl) } as tv), ty)
     | (ty, T_Var({ val: Free(tag, lvl) } as tv)) => {
       match ty {
-        T_Var({ val: Free(alt_tag, _) }) => if tag == alt_tag { return Ok(()) }
+        T_Var({ val: Free(alt_tag, _) }) => if tag == alt_tag {  }
         _ => ()
       }
-      ty.check_occurs(tag, lvl)?
+      ty.check_occurs!(tag, lvl)
       tv.val = Solved(ty)
     }
     (T_Lam(t11, t12), T_Lam(t21, t22)) => {
-      unify(t11, t21)?
-      unify(t12, t22)?
+      unify!(t11, t21)
+      unify!(t12, t22)
     }
-    (T_Con(con1), T_Con(con2)) =>
-      if con1 != con2 {
-        return Err("type mismatch")
-      }
+    (T_Con(con1), T_Con(con2)) => if con1 != con2 { raise "type mismatch" }
     (T_App(f1, a1), T_App(f2, a2)) => {
-      unify(f1, f2)?
-      unify(a1, a2)?
+      unify!(f1, f2)
+      unify!(a1, a2)
     }
-    _ => return Err("type mismatch")
+    _ => raise "type mismatch"
   }
-  Ok(())
 }
 
 fn generalize(self : Type, lvl : Int) -> Type {
@@ -127,29 +122,29 @@ fn instantiate(self : Type) -> Type {
   go(self)
 }
 
-fn infer(ctx : Map[String, Type], expr : Expr) -> Result[Type, String] {
+fn infer(ctx : Map[String, Type], expr : Expr) -> Type!String {
   match expr {
     Var(name) =>
       match ctx.find(name) {
-        None => return Err("variable not found: " + name)
-        Some(ty) => Ok(ty.instantiate())
+        None => raise "variable not found: " + name
+        Some(ty) => ty.instantiate()
       }
-    Con(con) => Ok(T_Con(con))
+    Con(con) => T_Con(con)
     Lam(param, body) => {
       let tparam = fresh(ctx.length())
-      let tret = infer(Extend(param, tparam, ctx), body)?
-      Ok(T_Lam(tparam, tret))
+      let tret = infer!(Extend(param, tparam, ctx), body)
+      T_Lam(tparam, tret)
     }
     App(func, arg) => {
-      let tfunc = infer(ctx, func)?
-      let targ = infer(ctx, arg)?
+      let tfunc = infer!(ctx, func)
+      let targ = infer!(ctx, arg)
       let tret = fresh(10000000)
-      unify(tfunc, T_Lam(targ, tret))?
-      Ok(tret.repr())
+      unify!(tfunc, T_Lam(targ, tret))
+      tret.repr()
     }
     Let(name, rhs, body) => {
-      let trhs = infer(ctx, rhs)?.generalize(ctx.length())
-      infer(Extend(name, trhs, ctx), body)
+      let trhs = infer!(ctx, rhs).generalize(ctx.length())
+      infer!(Extend(name, trhs, ctx), body)
     }
   }
 }

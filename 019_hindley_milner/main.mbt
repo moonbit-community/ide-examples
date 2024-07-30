@@ -45,16 +45,17 @@ fn main {
 }
 
 fn run(src : String) -> Unit {
-  match parse_and_check(src) {
-    Err(err) => println(err)
-    Ok(typ) => typ.pretty()
+  try {
+    parse_and_check!(src).pretty()
+  } catch {
+    err => println(err)
   }
 }
 
-fn parse_and_check(src : String) -> Result[Type, String] {
+fn parse_and_check(src : String) -> Type!String {
   let t = Tokenizer::make(src)
-  let expr = t.parse_whole_file()?
-  Ok(infer(prelude, expr)?.generalize(0))
+  let expr = t.parse_whole_file!()
+  infer!(prelude, expr).generalize(0)
 }
 
 let prelude : Map[String, Type] = Map::of_array(
