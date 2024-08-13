@@ -12,7 +12,7 @@ struct Duck {
 
 fn speak(self : Duck) -> Unit {
   let name = self.name
-  println("\(name): Quak!")
+  println("\{name}: Quak!")
 }
 
 struct Fox {
@@ -21,7 +21,7 @@ struct Fox {
 
 fn speak(self : Fox) -> Unit {
   let name = self.name
-  println("\(name): What does the fox say?")
+  println("\{name}: What does the fox say?")
 }
 
 // trait [Animal], when used as type directly,

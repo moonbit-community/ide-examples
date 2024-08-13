@@ -154,7 +154,7 @@ pub fn to_string[U : Show](self : T[U]) -> String {
   match self {
     Empty => "()"
     Node(left=Empty, elem=v, right=Empty, ..) => v.to_string()
-    Node(left=l, elem=v, right=r, ..) => "(\(l), \(v), \(r))"
+    Node(left=l, elem=v, right=r, ..) => "(\{l}, \{v}, \{r})"
   }
 }
 
@@ -183,7 +183,7 @@ fn main {
     i = i + 1
   }
   let height = v.height()
-  println("height of the tree: \(height)")
+  println("height of the tree: \{height}")
 
   // you can uncomment it and run it from terminal using moon
   // https://www.moonbitlang.com/en/download/

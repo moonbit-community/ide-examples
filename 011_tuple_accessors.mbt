@@ -13,5 +13,5 @@ fn main {
   println(y.2) // "banana"
   // access via pattern matching
   let (a, b) = (100, 200)
-  println("a: \(a), b: \(b)")
+  println("a: \{a}, b: \{b}")
 }

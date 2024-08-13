@@ -9,12 +9,12 @@ fn main {
 
   // use `reduce` to calculate the sum of each elements
   let sum = ls.reduce(fn(a, b) { a + b }, 0)
-  println("sum: \(sum)")
+  println("sum: \{sum}")
 
   // collect elements of List `ls` into Array
   let ary = ls.collect()
   let len = ary.length()
-  println("length: \(len)")
+  println("length: \{len}")
 }
 
 enum List[X] {
@@ -124,8 +124,8 @@ fn to_string[T : Show](self : List[T]) -> String {
   fn go(ls : List[T]) {
     match ls {
       Nil => ""
-      Cons(x, Nil) => "\(x)"
-      Cons(x, xs) => "\(x), " + go(xs)
+      Cons(x, Nil) => "\{x}"
+      Cons(x, xs) => "\{x}, " + go(xs)
     }
   }
 

@@ -272,22 +272,22 @@ fn BoxedString::number(i: Int) -> BoxedString { { str: i.to_string(), level: 0} 
 fn BoxedString::op_add(a: BoxedString, b: BoxedString) -> BoxedString {
   let stra = a.str
   let strb = if b.level == 1 { "(" + b.str + ")" } else { b.str }
-  { str : "\(stra) + \(strb)", level : 1} 
+  { str : "\{stra} + \{strb}", level : 1} 
 }
 fn BoxedString::op_sub(a: BoxedString, b: BoxedString) -> BoxedString {
   let stra = a.str
   let strb = if b.level == 1 { "(" + b.str + ")" } else { b.str }
-  { str : "\(stra) - \(strb)", level : 1} 
+  { str : "\{stra} - \{strb}", level : 1} 
 }
 fn BoxedString::op_mul(a: BoxedString, b: BoxedString) -> BoxedString {
   let stra = if a.level == 1 { "(" + a.str + ")" } else { a.str }
   let strb = if b.level == 1 { "(" + b.str + ")" } else { b.str }
-  { str : "\(stra) * \(strb)", level : 2}
+  { str : "\{stra} * \{strb}", level : 2}
 }
 fn BoxedString::op_div(a: BoxedString, b: BoxedString) -> BoxedString {
   let stra = if a.level == 1 { "(" + a.str + ")" } else { a.str }
   let strb = if b.level == 1 { "(" + b.str + ")" } else { b.str }
-  { str : "\(stra) / \(strb)", level : 2}
+  { str : "\{stra} / \{strb}", level : 2}
 }
 
 fn recursive_parser_with_tagless_final[E : Expr]() -> Parser[E] {

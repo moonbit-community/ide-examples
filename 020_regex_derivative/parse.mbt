@@ -58,11 +58,11 @@ fn parse_atomic(state : ParseState) -> Regex {
       state.offset = state.offset + 1
       let r = parse_alt(state)
       if state.offset >= state.src.length() {
-        abort("unmatched parenthesis at offset at index \(paren_pos)")
+        abort("unmatched parenthesis at offset at index \{paren_pos}")
       }
       match state.src[state.offset] {
         ')' => state.offset = state.offset + 1
-        _ => abort("unmatched parenthesis at offset at index \(paren_pos)")
+        _ => abort("unmatched parenthesis at offset at index \{paren_pos}")
       }
       r
     }

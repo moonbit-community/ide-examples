@@ -196,7 +196,7 @@ fn init {
       continue i + 1, correct, wrong + 1
     }
   } else {
-    println("correct \(correct) wrong \(wrong)")
+    println("correct \{correct} wrong \{wrong}")
   }
 }
 

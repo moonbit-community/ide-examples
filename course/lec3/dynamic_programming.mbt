@@ -283,8 +283,8 @@ fn remove[Key : Compare, Value](
 pub fn to_string[Key : Show, Value : Show](self : AVLMap[Key, Value]) -> String {
   match self {
     Empty => "()"
-    Node(Empty, k, v, Empty, _) => "\(k)->\(v)"
-    Node(l, k, v, r, _) => "(\(l), \(k)->\(v), \(r))"
+    Node(Empty, k, v, Empty, _) => "\{k}->\{v}"
+    Node(l, k, v, r, _) => "(\{l}, \{k}->\{v}, \{r})"
   }
 }
 

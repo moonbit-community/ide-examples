@@ -45,11 +45,17 @@ fn repr(self : Type) -> Type {
   }
 }
 
-fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!String {
+type! TypeCheckError {
+  OccursError
+  TypeMismatchError
+  VariableNotFoundError(String)
+}
+
+fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
   match self.repr() {
     T_Var({ val: Free(my_tag, my_lvl) } as tvar) =>
       if tag == my_tag {
-        raise "occurs check"
+        raise OccursError
       } else if lvl < my_lvl {
         tvar.val = Free(my_tag, lvl)
       }
@@ -62,7 +68,7 @@ fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!String {
   }
 }
 
-fn unify(t1 : Type, t2 : Type) -> Unit!String {
+fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
   match (t1.repr(), t2.repr()) {
     (T_Var({ val: Free(tag, lvl) } as tv), ty)
     | (ty, T_Var({ val: Free(tag, lvl) } as tv)) => {
@@ -77,12 +83,12 @@ fn unify(t1 : Type, t2 : Type) -> Unit!String {
       unify!(t11, t21)
       unify!(t12, t22)
     }
-    (T_Con(con1), T_Con(con2)) => if con1 != con2 { raise "type mismatch" }
+    (T_Con(con1), T_Con(con2)) => if con1 != con2 { raise TypeMismatchError }
     (T_App(f1, a1), T_App(f2, a2)) => {
       unify!(f1, f2)
       unify!(a1, a2)
     }
-    _ => raise "type mismatch"
+    _ => raise TypeMismatchError
   }
 }
 
@@ -122,11 +128,11 @@ fn instantiate(self : Type) -> Type {
   go(self)
 }
 
-fn infer(ctx : Map[String, Type], expr : Expr) -> Type!String {
+fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
   match expr {
     Var(name) =>
       match ctx.find(name) {
-        None => raise "variable not found: " + name
+        None => raise VariableNotFoundError("variable not found: \{name}")
         Some(ty) => ty.instantiate()
       }
     Con(con) => T_Con(con)

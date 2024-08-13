@@ -200,7 +200,7 @@ pub fn dump(self : CompiledRegex) -> Unit {
     fn(entry) {
       let ({ accepting, transitions }, id) = entry
       let accepting = if accepting { " (accepting)" } else { "" }
-      println("state #\(id)\(accepting):")
+      println("state #\{id}\{accepting}:")
       fn output_transitions(any_trans : State?, transitions) {
         match (transitions : List[(Symbol, State)]) {
           Nil =>
@@ -209,7 +209,7 @@ pub fn dump(self : CompiledRegex) -> Unit {
               Some(s) => println("  _ => #" + state_to_string(s))
             }
           Cons((Chr(c), next_state), rest) => {
-            println("  \(c) => #" + state_to_string(next_state))
+            println("  \{c} => #" + state_to_string(next_state))
             output_transitions(any_trans, rest)
           }
           Cons((Any, next_state), rest) =>

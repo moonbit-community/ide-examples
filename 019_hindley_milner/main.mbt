@@ -52,7 +52,7 @@ fn run(src : String) -> Unit {
   }
 }
 
-fn parse_and_check(src : String) -> Type!String {
+fn parse_and_check(src : String) -> Type!Error {
   let t = Tokenizer::make(src)
   let expr = t.parse_whole_file!()
   infer!(prelude, expr).generalize(0)
