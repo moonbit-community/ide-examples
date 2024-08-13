@@ -300,7 +300,7 @@ fn count_collision[K, V](self : HAMT[K, V]) -> Int {
 pub fn print_hamt[K : Show, V : Show](self : HAMT[K, V], indent : Int) -> Unit {
   match self {
     Empty => println("Empty")
-    Leaf(k, v) => println("\(k) => \(v)")
+    Leaf(k, v) => println("\{k} => \{v}")
     Collision(bucket) => print_bucket(bucket)
     Branch(children) =>
       if children.data.length() == 0 {
@@ -313,7 +313,7 @@ pub fn print_hamt[K : Show, V : Show](self : HAMT[K, V], indent : Int) -> Unit {
               for n = 0; n < indent; n = n + 1 {
                 println(' ')
               }
-              println("#\(i)")
+              println("#\{i}")
               for n = 0; n < indent; n = n + 1 {
                 println(' ')
               }
@@ -377,9 +377,9 @@ fn size[K, V](self : Bucket[K, V]) -> Int {
 /// Print the contents of a Bucket.
 fn print_bucket[K : Show, V : Show](self : Bucket[K, V]) -> Unit {
   match self {
-    Just_One(k, v) => println("\(k) => \(v)")
+    Just_One(k, v) => println("\{k} => \{v}")
     More(k, v, rest) => {
-      println("\(k) => \(v); ")
+      println("\{k} => \{v}; ")
       print_bucket(rest)
     }
   }
@@ -392,7 +392,7 @@ fn main {
     hamt = hamt.add(i, i)
   }
   let collision_count = hamt.count_collision()
-  println("number of collision: \(collision_count)")
+  println("number of collision: \{collision_count}")
   // uncomment this to see the tree (large trees may not display properly)
   // hamt.println(0)
 
@@ -402,11 +402,11 @@ fn main {
       Some(v) =>
         if v != i {
           is_ok = false
-          println("\(i): wrong value")
+          println("\{i}: wrong value")
         }
       None => {
         is_ok = false
-        println("\(i): not found")
+        println("\{i}: not found")
       }
     }
   }

@@ -1,25 +1,25 @@
 fn init {
   let empty : Stack[Int] = Stack::empty()
-  println("empty is Empty: \(empty)")
+  println("empty is Empty: \{empty}")
   let one = empty.push(1)
   let two = one.push(1)
   let (top, rest) = two.pop()
   match top {
-    Some(value) => println("top should be Some(1): \(value)")
+    Some(value) => println("top should be Some(1): \{value}")
     None => abort("error")
   }
-  println("rest should equal to one: \(rest) == \(one)")
+  println("rest should equal to one: \{rest} == \{one}")
   let empty_queue : Queue[Int] = Queue::empty()
   let one_queue = empty_queue.push(1)
-  println("one_queue should contain 1 in front: \(one_queue)")
+  println("one_queue should contain 1 in front: \{one_queue}")
   let two_queue = one_queue.push(2)
-  println("two_queue should contain 1 in front and 2 in back: \(two_queue)")
+  println("two_queue should contain 1 in front and 2 in back: \{two_queue}")
   let (first, rest) = two_queue.pop()
   match first {
-    Some(value) => println("first should be Some(1): \(value)")
+    Some(value) => println("first should be Some(1): \{value}")
     None => abort("error")
   }
-  println("rest should contain 2 in front: \(rest)")
+  println("rest should contain 2 in front: \{rest}")
 }
 
 enum IntStack {
@@ -150,8 +150,8 @@ fn to_string[T : Show](self : List[T]) -> String {
   fn go(ls : List[T]) {
     match ls {
       Nil => ""
-      Cons(x, Nil) => "\(x)"
-      Cons(x, xs) => "\(x), " + go(xs)
+      Cons(x, Nil) => "\{x}"
+      Cons(x, xs) => "\{x}, " + go(xs)
     }
   }
 
@@ -171,14 +171,14 @@ fn init {
   println(
     fold_left(
       Cons("1", Cons("2", Cons("3", Nil))),
-      fn(b : String, a) { "(\(b) + \(a))" },
+      fn(b : String, a) { "(\{b} + \{a})" },
       "0",
     ),
   )
   println(
     fold_right(
       Cons("1", Cons("2", Cons("3", Nil))),
-      fn(a : String, b : String) { "(\(a) + \(b))" },
+      fn(a : String, b : String) { "(\{a} + \{b})" },
       "0",
     ),
   )

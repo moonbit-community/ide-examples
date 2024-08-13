@@ -29,14 +29,14 @@ struct Program {
 
 fn Instruction::to_wasm(self : Instruction, buffer : Buffer) -> Unit {
   match self {
-    Const(I32(i)) => buffer.write_string("i32.const \(i) ")
+    Const(I32(i)) => buffer.write_string("i32.const \{i} ")
     Add => buffer.write_string("i32.add ")
     Sub => buffer.write_string("i32.sub ")
     Modulo => buffer.write_string("i32.rem_s ")
     Equal => buffer.write_string("i32.eq ")
-    Call(val) => buffer.write_string("call $\(val) ")
-    Local_Get(val) => buffer.write_string("local.get $\(val) ")
-    Local_Set(val) => buffer.write_string("local.set $\(val) ")
+    Call(val) => buffer.write_string("call $\{val} ")
+    Local_Get(val) => buffer.write_string("local.get $\{val} ")
+    Local_Set(val) => buffer.write_string("local.set $\{val} ")
     If(n, then, else_) => {
       buffer.write_string("if (result ")
       for i = 0; i < n; i = i + 1 {
@@ -53,14 +53,14 @@ fn Instruction::to_wasm(self : Instruction, buffer : Buffer) -> Unit {
 
 fn Function::to_wasm(self : Function, buffer : Buffer) -> Unit {
   let { name, params, result, locals, instructions } = self
-  buffer.write_string("(func $\(name) (export \"\(name)\")")
-  params.iter(fn { param => buffer.write_string("(param $\(param) i32) ") })
+  buffer.write_string("(func $\{name} (export \"\{name}\")")
+  params.iter(fn { param => buffer.write_string("(param $\{param} i32) ") })
   buffer.write_string("(result ")
   for i = 0; i < result; i = i + 1 {
     buffer.write_string("i32 ")
   }
   buffer.write_string(") ")
-  locals.iter(fn { local => buffer.write_string("(local $\(local) i32)") })
+  locals.iter(fn { local => buffer.write_string("(local $\{local} i32)") })
   instructions.iter(fn { instruction => instruction.to_wasm(buffer) })
   buffer.write_string(")\n")
 }
@@ -75,7 +75,7 @@ fn Program::to_wasm(self : Program, buffer : Buffer) -> Unit {
   )
   functions.iter(fn { func => func.to_wasm(buffer) })
   match start {
-    Some(start) => buffer.write_string("(start $\(start)))")
+    Some(start) => buffer.write_string("(start $\{start}))")
     None => buffer.write_string(")")
   }
 }

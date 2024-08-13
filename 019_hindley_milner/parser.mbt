@@ -52,20 +52,27 @@ fn lexeme(self : Tokenizer) -> String {
   b.to_string()
 }
 
-fn peek(self : Tokenizer) -> Token!String {
+fn peek(self : Tokenizer) -> Token!TokenError {
   if self.cursor == 0 {
     self.cur_token = self.do_next!()
   }
   self.cur_token
 }
 
-fn next(self : Tokenizer) -> Token!String {
+fn next(self : Tokenizer) -> Token!TokenError {
   let tok = self.peek!()
   self.cur_token = self.do_next!()
   tok
 }
 
-fn do_next(self : Tokenizer) -> Token!String {
+type! TokenError {
+  BadTokenError(String)
+  InvalidCharacterError(String)
+  UnexpectedEofError
+  UnexpectedTokenError(String)
+}
+
+fn do_next(self : Tokenizer) -> Token!TokenError {
   self.token_start = self.cursor
   let c = match self.next_char() {
     None => return EOF
@@ -79,7 +86,7 @@ fn do_next(self : Tokenizer) -> Token!String {
     '-' =>
       match self.next_char() {
         Some('>') => return ARROW
-        _ => raise "bad token \"" + self.lexeme() + "\""
+        _ => raise BadTokenError("bad token \"" + self.lexeme() + "\"")
       }
     _ => ()
   }
@@ -93,7 +100,7 @@ fn do_next(self : Tokenizer) -> Token!String {
   } else if 'A' <= c && c <= 'Z' {
     CON(self.next_ident())
   } else {
-    raise "invalid character " + c.to_string()
+    raise InvalidCharacterError("invalid character " + c.to_string())
   }
 }
 
@@ -101,8 +108,10 @@ fn next_ident(self : Tokenizer) -> String {
   match self.peek_char() {
     None => self.lexeme()
     Some(c) =>
-      if ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') ||
-      c == '_' {
+      if ('a' <= c && c <= 'z') ||
+        ('A' <= c && c <= 'Z') ||
+        ('0' <= c && c <= '9') ||
+        c == '_' {
         self.cursor = self.cursor + 1
         self.next_ident()
       } else {
@@ -111,15 +120,15 @@ fn next_ident(self : Tokenizer) -> String {
   }
 }
 
-fn parse_whole_file(self : Tokenizer) -> Expr!String {
+fn parse_whole_file(self : Tokenizer) -> Expr!TokenError {
   let expr = self.parse_expr!()
   self.expect_token!(EOF)
   expr
 }
 
-fn parse_expr(self : Tokenizer) -> Expr!String {
+fn parse_expr(self : Tokenizer) -> Expr!TokenError {
   match self.peek!() {
-    EOF => raise "unexpected EOF, expected expr"
+    EOF => raise UnexpectedEofError
     LET => {
       let _ = self.next!()
       let id = self.expect_ident!()
@@ -134,7 +143,7 @@ fn parse_expr(self : Tokenizer) -> Expr!String {
       let param = self.expect_ident!()
       self.expect_token!(ARROW)
       let body = self.parse_expr!()
-      (Lam(param, body))
+      Lam(param, body)
     }
     _ => {
       let mut head = self.parse_simple_expr!()
@@ -147,12 +156,12 @@ fn parse_expr(self : Tokenizer) -> Expr!String {
           _ => break
         }
       }
-      (head)
+      head
     }
   }
 }
 
-fn parse_simple_expr(self : Tokenizer) -> Expr!String {
+fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
   match self.next!() {
     IDENT(id) => Var(id)
     CON(con) => Con(con)
@@ -162,39 +171,31 @@ fn parse_simple_expr(self : Tokenizer) -> Expr!String {
       expr
     }
     token => {
-      let b = Buffer::new(size_hint=17)
-      b.write_string("unexpected token \"")
-      token.output(b)
-      b.write_string("\", expecting simple expression")
-      raise b.to_string()
+      let tok = token.to_string()
+      raise UnexpectedTokenError(
+        "unexpected token \"\{tok}\", expecting simple expression",
+      )
     }
   }
 }
 
-fn expect_ident(self : Tokenizer) -> String!String {
+fn expect_ident(self : Tokenizer) -> String!TokenError {
   match self.next!() {
     IDENT(id) => id
     token => {
-      let b = Buffer::new(size_hint=17)
-      b.write_string("unexpected token \"")
-      token.output(b)
-      b.write_string("\", expecting identifier")
-      raise b.to_string()
+      let tok = token.to_string()
+      raise UnexpectedTokenError(
+        "unexpected token \"\{tok}\", expecting identifier",
+      )
     }
   }
 }
 
-fn expect_token(self : Tokenizer, tok : Token) -> Unit!String {
+fn expect_token(self : Tokenizer, tok : Token) -> Unit!TokenError {
   let next_tok = self.next!()
   if next_tok == tok {
 
   } else {
-    let b = Buffer::new(size_hint=17)
-    b.write_string("unexpected token \"")
-    next_tok.output(b)
-    b.write_string("\", expecting \"")
-    tok.output(b)
-    b.write_string("\"")
-    raise b.to_string()
+    raise UnexpectedTokenError("unexpected token \"\{next_tok}\", expecting \"\{tok}\"")
   }
 }
