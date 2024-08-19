@@ -1,0 +1,9 @@
+{
+  "is-main": true,
+  "test-import": [
+    "regex_derivative/lib"
+  ],
+  "import": [
+    "regex_derivative/lib"
+  ]
+}

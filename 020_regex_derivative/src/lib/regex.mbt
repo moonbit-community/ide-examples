@@ -233,7 +233,9 @@ pub fn compile(self : Regex) -> CompiledRegex {
         let state = { accepting: r.nullable(), transitions: Nil }
         current_states = Cons((r, state), current_states)
         // for every possible head character, create a transition
-        r.head_symbols().iter(
+        r
+        .head_symbols()
+        .iter(
           fn(s) {
             state.transitions = Cons(
               (s, go(r.derivative(s))),

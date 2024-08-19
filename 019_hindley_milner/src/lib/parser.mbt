@@ -20,7 +20,7 @@ struct Tokenizer {
   mut cur_token : Token
 }
 
-fn Tokenizer::make(src : String) -> Tokenizer {
+pub fn Tokenizer::make(src : String) -> Tokenizer {
   { token_start: 0, cursor: 0, src, cur_token: EOF }
 }
 
@@ -120,7 +120,7 @@ fn next_ident(self : Tokenizer) -> String {
   }
 }
 
-fn parse_whole_file(self : Tokenizer) -> Expr!TokenError {
+pub fn parse_whole_file(self : Tokenizer) -> Expr!TokenError {
   let expr = self.parse_expr!()
   self.expect_token!(EOF)
   expr
@@ -196,6 +196,8 @@ fn expect_token(self : Tokenizer, tok : Token) -> Unit!TokenError {
   if next_tok == tok {
 
   } else {
-    raise UnexpectedTokenError("unexpected token \"\{next_tok}\", expecting \"\{tok}\"")
+    raise UnexpectedTokenError(
+      "unexpected token \"\{next_tok}\", expecting \"\{tok}\"",
+    )
   }
 }

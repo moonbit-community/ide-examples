@@ -52,13 +52,13 @@ fn run(src : String) -> Unit {
   }
 }
 
-fn parse_and_check(src : String) -> Type!Error {
-  let t = Tokenizer::make(src)
+fn parse_and_check(src : String) -> @lib.Type!Error {
+  let t = @lib.Tokenizer::make(src)
   let expr = t.parse_whole_file!()
-  infer!(prelude, expr).generalize(0)
+  @lib.infer!(prelude, expr).generalize(0)
 }
 
-let prelude : Map[String, Type] = Map::of_array(
+let prelude : @lib.Map[String, @lib.Type] = @lib.Map::of_array(
   [
     ("nil", forall(fn(a) { list(a) })),
     ("cons", forall(fn(a) { lam([a, list(a)], list(a)) })),
@@ -66,19 +66,19 @@ let prelude : Map[String, Type] = Map::of_array(
   ],
 )
 
-fn forall(f : (Type) -> Type) -> Type {
-  f(fresh_generic())
+fn forall(f : (@lib.Type) -> @lib.Type) -> @lib.Type {
+  f(@lib.fresh_generic())
 }
 
-fn forall2(f : (Type, Type) -> Type) -> Type {
-  f(fresh_generic(), fresh_generic())
+fn forall2(f : (@lib.Type, @lib.Type) -> @lib.Type) -> @lib.Type {
+  f(@lib.fresh_generic(), @lib.fresh_generic())
 }
 
-fn list(a : Type) -> Type {
-  T_App(T_Con("List"), a)
+fn list(a : @lib.Type) -> @lib.Type {
+  @lib.T_App(@lib.T_Con("List"), a)
 }
 
-fn lam(args : Array[Type], ret : Type) -> Type {
+fn lam(args : Array[@lib.Type], ret : @lib.Type) -> @lib.Type {
   let mut result = ret
   for i = args.length() - 1; i >= 0; i = i - 1 {
     result = T_Lam(args[i], result)

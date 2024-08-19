@@ -1,4 +1,4 @@
-enum Type {
+pub enum Type {
   T_Var(Ref[Tvar])
   T_Lam(Type, Type)
   T_Con(String)
@@ -28,7 +28,7 @@ fn fresh(lvl : Int) -> Type {
   T_Var({ val: Free(tag, lvl) })
 }
 
-fn fresh_generic() -> Type {
+pub fn fresh_generic() -> Type {
   let tag = counter.val
   counter.val = tag + 1
   T_Var({ val: Generic(tag) })
@@ -92,7 +92,7 @@ fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
   }
 }
 
-fn generalize(self : Type, lvl : Int) -> Type {
+pub fn generalize(self : Type, lvl : Int) -> Type {
   match self.repr() {
     T_Var({ val: Free(tag, my_lvl) } as tv) as ty => {
       if my_lvl >= lvl {
@@ -128,7 +128,7 @@ fn instantiate(self : Type) -> Type {
   go(self)
 }
 
-fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
+pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
   match expr {
     Var(name) =>
       match ctx.find(name) {
@@ -179,7 +179,7 @@ fn length[K, V](self : Map[K, V]) -> Int {
   }
 }
 
-fn Map::of_array[K, V](xs : Array[(K, V)]) -> Map[K, V] {
+pub fn Map::of_array[K, V](xs : Array[(K, V)]) -> Map[K, V] {
   let mut result : Map[_] = Empty
   for i = xs.length() - 1; i >= 0; i = i - 1 {
     let (k, v) = xs[i]
@@ -189,7 +189,7 @@ fn Map::of_array[K, V](xs : Array[(K, V)]) -> Map[K, V] {
 }
 
 // pretty printer for type
-fn pretty(self : Type) -> Unit {
+pub fn pretty(self : Type) -> Unit {
   let mut subst : Map[Int, String] = Empty
   let buf = Buffer::new(size_hint=100)
   fn show_var(tag : Int) -> String {

@@ -3,7 +3,9 @@ pub fn Regex::parse(src : String) -> Regex {
   let r = parse_alt(state)
   if state.offset < state.src.length() {
     abort(
-      "unexpected character " + state.src[state.offset].to_string() + " at index " +
+      "unexpected character " +
+      state.src[state.offset].to_string() +
+      " at index " +
       state.offset.to_string(),
     )
   }
