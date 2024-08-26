@@ -73,7 +73,7 @@ fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
     (T_Var({ val: Free(tag, lvl) } as tv), ty)
     | (ty, T_Var({ val: Free(tag, lvl) } as tv)) => {
       match ty {
-        T_Var({ val: Free(alt_tag, _) }) => if tag == alt_tag {  }
+        T_Var({ val: Free(alt_tag, _) }) => if tag == alt_tag { return }
         _ => ()
       }
       ty.check_occurs!(tag, lvl)
