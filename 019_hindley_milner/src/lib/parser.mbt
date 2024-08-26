@@ -41,15 +41,7 @@ fn next_char(self : Tokenizer) -> Char? {
 }
 
 fn lexeme(self : Tokenizer) -> String {
-  let len = self.cursor - self.token_start
-  if len <= 0 {
-    return ""
-  }
-  let b = Bytes::make(len, b'\x00')
-  for i = 0; i < len; i = i + 1 {
-    b[i] = self.src[self.token_start + i].to_int().to_byte()
-  }
-  b.to_string()
+  self.src.substring(start=self.token_start, end=self.cursor)
 }
 
 fn peek(self : Tokenizer) -> Token!TokenError {
@@ -70,7 +62,7 @@ type! TokenError {
   InvalidCharacterError(String)
   UnexpectedEofError
   UnexpectedTokenError(String)
-}
+} derive(Show)
 
 fn do_next(self : Tokenizer) -> Token!TokenError {
   self.token_start = self.cursor
