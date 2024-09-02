@@ -36,9 +36,12 @@ fn input2hidden[T : Base](
   let outputs : Array[T] = Array::make(param.length(), T::constant(0.0))
   for output = 0; output < param.length(); output = output + 1 {
     for input = 0; input < inputs.length(); input = input + 1 {
-      outputs[output] = outputs[output] + T::constant(inputs[input]) * param[output][input]
+      outputs[output] = outputs[output] +
+        T::constant(inputs[input]) * param[output][input]
     }
-    outputs[output] = outputs[output] + param[output][inputs.length()] // constant
+    outputs[output] = outputs[output] +
+      param[output][inputs.length() // constant
+      ]
       |> reLU
   }
   outputs
@@ -77,11 +80,14 @@ fn cross_entropy[T : Base + Log](inputs : Array[T], expected : Int) -> T {
 fn verify[N : Base](result : Array[N], expected : Int) -> Bool {
   match expected {
     0 =>
-      return result[0].value() > result[1].value() && result[0].value() > result[2].value()
+      return result[0].value() > result[1].value() &&
+        result[0].value() > result[2].value()
     1 =>
-      return result[1].value() > result[0].value() && result[1].value() > result[2].value()
+      return result[1].value() > result[0].value() &&
+        result[1].value() > result[2].value()
     2 =>
-      return result[2].value() > result[1].value() && result[2].value() > result[0].value()
+      return result[2].value() > result[1].value() &&
+        result[2].value() > result[0].value()
     _ => abort("")
   }
 }
@@ -360,23 +366,15 @@ fn Backward::log(b : Backward) -> Backward {
 
 // Implementation for Double
 
-fn Base::constant(d : Double) -> Double {
-  d
-}
+impl Base for Double with constant(self : Double) -> Double { self }
 
-fn Base::value(d : Double) -> Double {
-  d
-}
+impl Base for Double with value(d : Double) -> Double { d }
 
-fn Base::exp(x : Double) -> Double {
-  x |> exp_ffi
-}
+impl Base for Double with exp(x : Double) -> Double { x |> exp_ffi }
 
 fn exp_ffi(x : Double) -> Double = "math" "exp"
 
-fn Log::log(x : Double) -> Double {
-  x |> log_ffi
-}
+impl Log for Double with log(x : Double) -> Double { x |> log_ffi }
 
 fn log_ffi(x : Double) -> Double = "math" "log"
 
