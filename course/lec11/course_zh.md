@@ -83,7 +83,7 @@ headingDivider: 1
   type Lexer[V] (String) -> Option[(V, String)]
 
   fn parse[V](self : Lexer[V], str : String) -> Option[(V, String)] {
-    (self.0)(str)
+    (self._)(str)
   }
   ```
   - 我们简化处理报错信息以及错误位置（可以使用`Result[A, B]`）
@@ -306,7 +306,7 @@ let value: Lexer[Token] =
   type Parser[V] (List[Token]) -> Option[(V, List[Token])]
 
   fn parse[V](self : Parser[V], tokens : List[Token]) -> Option[(V, List[Token])] {
-    (self.0)(tokens)
+    (self._)(tokens)
   }
   ```
 - 大部分组合子与`Lexer[V]`类似
