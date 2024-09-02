@@ -170,7 +170,7 @@ fn State::op_equal(s1 : State, s2 : State) -> Bool {
 type CompiledRegex State
 
 pub fn matches(self : CompiledRegex, s : String) -> Bool {
-  self.0.accepts(s, 0)
+  self._.accepts(s, 0)
 }
 
 pub fn dump(self : CompiledRegex) -> Unit {
@@ -188,7 +188,7 @@ pub fn dump(self : CompiledRegex) -> Unit {
     }
   }
 
-  collect_states(self.0)
+  collect_states(self._)
   fn state_to_string(s : State) -> String {
     match List::assoc(states, s) {
       None => abort("impossible")
@@ -220,7 +220,7 @@ pub fn dump(self : CompiledRegex) -> Unit {
       output_transitions(None, transitions)
     },
   )
-  println("initial state: #" + state_to_string(self.0))
+  println("initial state: #" + state_to_string(self._))
 }
 
 /// compile a regular expression to a state machine
