@@ -38,10 +38,8 @@ fn fib1_mut(num : Int) -> Int64 {
 // Bottom-up 自底向上
 fn fib2(num : Int) -> Int64 {
   fn aux(n : Int, map : AVLMap[Int, Int64]) -> Int64 {
-    let result = get_or_else(get(map, n - 1), 1L) + get_or_else(
-        get(map, n - 2),
-        1L,
-      )
+    let result = get_or_else(get(map, n - 1), 1L) +
+      get_or_else(get(map, n - 2), 1L)
     if n == num {
       result
     } else {

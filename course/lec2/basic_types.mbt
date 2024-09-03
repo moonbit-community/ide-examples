@@ -1,9 +1,11 @@
-let x: Int = 10
-let a: Double = 3.14
-let s: String = "Hello"
+let x : Int = 10
+
+let a : Double = 3.14
+
+let s : String = "Hello"
 
 // the following code compiles 下方的代码可以编译
-let 通过编译: Int = x + (a + 0.2).to_int() 
+let 通过编译 : Int = x + (a + 0.2).to_int()
 
 // code on line 10 does not compile, uncomment (remove the `//`) to see error 
 // 第10行的代码无法通过编译，取消注释（删除行首的`//`）来查看错误提示
@@ -28,7 +30,7 @@ test {
   assert_equals_断言相等(2147483648L, 2147483647L + 1L)
   // will overflow if convert back to 32 bits integer 如果转回32位整数会溢出
   assert_equals_断言相等(-2147483648, 2147483648L.to_int())
-  
+
   // addition of floating point numbers is not accurate 浮点数加法并不精准
   assert_not_equals_断言不相等(0.3, 0.1 + 0.2)
   assert_not_equals_断言不相等(0.1, 0.1 + 0.2 - 0.2)
@@ -43,17 +45,25 @@ test {
 }
 
 fn assert_true_断言为真(b : Bool) -> Unit {
-  if b.not() { abort("") }
+  if b.not() {
+    abort("")
+  }
 }
 
 fn assert_false_断言为假(b : Bool) -> Unit {
-  if b { abort("") }
+  if b {
+    abort("")
+  }
 }
 
 fn assert_equals_断言相等[T : Eq](expected : T, actual : T) -> Unit {
-  if (expected == actual).not() { abort("") }
+  if (expected == actual).not() {
+    abort("")
+  }
 }
 
 fn assert_not_equals_断言不相等[T : Eq](expected : T, actual : T) -> Unit {
-  if expected == actual { abort("") }
+  if expected == actual {
+    abort("")
+  }
 }

@@ -52,7 +52,7 @@ enum Status {
 } derive(Show)
 
 /// HashMap based on open addressing 哈希表：开放地址实现
-/// 
+///
 /// Invariant : there's no empty slots between where a key should be stored and where it is stored
 /// 条件：从键的哈希值开始直到键的实际存储位置之间没有任何的空槽
 pub fn Map::hash_open_address[K : Hash + Eq + Default + Show, V : Default + Show]() ->
