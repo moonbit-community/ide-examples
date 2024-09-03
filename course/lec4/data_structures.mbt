@@ -109,7 +109,10 @@ fn baby_name(info : PersonalInfo) -> String? {
   }
 }
 
-fn zip(l1 : @immut/list.T[Int], l2 : @immut/list.T[Char]) -> @immut/list.T[(Int, Char)] {
+fn zip(
+  l1 : @immut/list.T[Int],
+  l2 : @immut/list.T[Char]
+) -> @immut/list.T[(Int, Char)] {
   match (l1, l2) {
     _ => Nil // Wrong order, making the following two lines unreachable 顺序错误，使得下方两行代码无法到达
     (Cons(hd, tl), Cons(hd2, tl2)) => Cons((hd, hd2), zip(tl, tl2))

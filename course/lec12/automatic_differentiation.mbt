@@ -46,7 +46,7 @@ fn compute(self : Symbol, input : Array[Double]) -> Double {
   }
 }
 
-// val is the index of the variable to be differentiated 
+// val is the index of the variable to be differentiated
 // val代表当前微分的变量
 fn differentiate(self : Symbol, val : Int) -> Symbol {
   match self {

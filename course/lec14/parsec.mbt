@@ -90,14 +90,14 @@ fn many[Value](self : Lexer[Value]) -> Lexer[@immut/list.T[Value]] {
   )
 }
 
-/// Number = %x30 / (%x31-39) *(%x30-39)  
-/// LParen = "("  
-/// RParen = ")"  
-/// Plus = "+"  
-/// Minus = "-"  
-/// Multiply = "*"  
-/// Divide = "/"  
-/// Whitespace = " "  
+/// Number = %x30 / (%x31-39) *(%x30-39)
+/// LParen = "("
+/// RParen = ")"
+/// Plus = "+"
+/// Minus = "-"
+/// Multiply = "*"
+/// Divide = "/"
+/// Whitespace = " "
 enum Token {
   Value(Int)
   LParen
@@ -150,9 +150,9 @@ let tokens : Lexer[@immut/list.T[Token]] = value
   .map(fn { (symbols, _) => symbols })
   .many()
 
-/// atomic = Value / LParen expression RParen  
-/// combine = atomic *( (Multiply / Divide) combine)  
-/// expression = combine *( (Plus / Minus) expression)  
+/// atomic = Value / LParen expression RParen
+/// combine = atomic *( (Multiply / Divide) combine)
+/// expression = combine *( (Plus / Minus) expression)
 enum Expression {
   Number(Int)
   Plus(Expression, Expression)

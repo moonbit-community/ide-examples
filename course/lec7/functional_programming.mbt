@@ -19,7 +19,8 @@ fn init {
   let z : Int = {
       println("hello moonbit")
       1 + 1
-    } * {
+    } *
+    {
       println("hello moonbit")
       1 + 1
     }

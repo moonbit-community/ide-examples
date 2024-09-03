@@ -54,9 +54,19 @@ fn display(self : Queue) -> Unit {
 
 fn init {
   let queue = Queue::make()
-  let _ = queue.push(1).push(5).push(10).pop().pop().pop().push(100).push(1000).push(
-    6,
-  ).push(7).push(8).push(10)
+  let _ = queue
+    .push(1)
+    .push(5)
+    .push(10)
+    .pop()
+    .pop()
+    .pop()
+    .push(100)
+    .push(1000)
+    .push(6)
+    .push(7)
+    .push(8)
+    .push(10)
   println(queue.length())
   queue.display()
 }
