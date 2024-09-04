@@ -28,6 +28,6 @@ jobs:
 
       - name: check package
         run: |
-          find . -maxdepth 1 -type d -not -name '.*' -not -name 'course' -not -not -name 'ffi' | while read -r dir; do
+          find . -maxdepth 1 -type d -not -name '.*' -not -name 'course' -not -name 'ffi' | while read -r dir; do
             moon check -C "$dir" || exit 1
           done
