@@ -1,8 +1,10 @@
-// In MoonBit, it's easy to write a test. 
-// No need for configuration, no frameworks or libraries. Just use the test block and 
-// write the test code inside it.
-// 
-// Click on the "Run test" button below to run the test.
+/// This feature is not available on the web. 
+/// You can install the Moon toolchain from https://www.moonbitlang.com/download/
+/// and try it in your terminal.
+
+
+/// In MoonBit, it's easy to write a test. 
+/// Just use the test block and write the test code inside it.
 test {
   assert_eq!(1, 1 + 2)
   assert_false!(1 == 2)
@@ -10,17 +12,17 @@ test {
 }
 
 
-// Writing test cases is nasty, use "inpect!" to make it easier.
-// 
-// Just inspect the return value of function, click on the "Run test" button.
-// If the result value is expected, you can store the result by clicking on the "Update test" button.
-// Next time you run the test, the stored result will be compared with the actual result.
+/// MoonBit supports snapshot testing.
+/// 
+/// Pass the value you want to test to the `inspect!` function, and run the test with `moon test`.
+/// If the output is as expected, you can store the result with `moon test --update`.
+/// The next time you run the test, the stored result will be compared with the actual result.
 test {
   inspect!(fib(5))
   inspect!([1,2,3,4].map(fib))
 }
 
-// Add test name to make it more descriptive.
+/// Add test name to make it more descriptive.
 test "fibonacci" {
   inspect!(fib(5), content="5")
   inspect!(fib(6), content="8")
