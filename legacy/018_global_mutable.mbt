@@ -41,3 +41,7 @@ test {
   add_data("ref")
   inspect!(data.val, content="Data: Hello, ref")
 }
+
+fn main {
+  
+}
