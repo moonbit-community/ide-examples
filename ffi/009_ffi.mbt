@@ -14,9 +14,5 @@ fn main {
   println(random())
   println(get_pi())
   println(add(1, 2))
-  let s = Js_string::new("123")
-  let ss = Js_string::new("abc\n")
-  s.log()
-  (s + ss).log()
   println(sqrt(4.0))
 }
