@@ -16,10 +16,10 @@ fn main {
   println(num4)
 
   // Double precision floating point  
-  let num5 : Double = 3.14 
+  let _num5 : Double = 3.14 
   
   // Unsigned integer with 32 bits and 64 bits
-  let unsigned32 : UInt = 1000
-  let unsigned64 : UInt64 = 1000
+  let _unsigned32 : UInt = 1000
+  let _unsigned64 : UInt64 = 1000
 }
 
