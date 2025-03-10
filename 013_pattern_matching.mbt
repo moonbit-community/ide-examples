@@ -3,10 +3,11 @@ struct Point {
   y : Int
 } derive(Show)
 
+///|
 enum Color {
   Red
-  Blue
   Green
+  Blue
   RGB(Int, Int, Int)
   RGBA(Int, Int, Int, Int)
 } derive(Show)
@@ -20,32 +21,34 @@ fn destructing(
   array : Array[Int],
   record : Point
 ) -> Unit {
-  let (a, b, c) = tuple
-  let [d, e, f] = array
-  let { x, y } = record
+  guard tuple is (a, b, c)
+  guard array is [d, e, f]
+  guard record is {x, y}
 }
 
-/// We mentioned that these use cases are just basic examples of pattern matching.
+
+
+
+
+///| We mentioned that these use cases are just basic examples of pattern matching.
 /// In MoonBit, almost every type you can construct has a form to "destruct", 
 /// which we call a pattern.
 /// 
 /// There are two common place to use pattern: let and match statement.
 fn use_pattern_in_let_and_match(color : Color) -> Unit {
-  // In let statement, on the left side of the "=" is a pattern. 
-  // If the pattern doesn't match the value on the right side, it will abort the program.
-  let Blue = color
-
   // In match statement, after the "match" keyword, every case has a form like "pattern => expression".
   // The first pattern that matches the value will execute the corresponding expression.
   // if no pattern matches, it will abort the program.
   match color {
-    Blue => println("Blue")
-    Green => println("Green")
     Red => println("Red")
+    Green => println("Green")
+    Blue => println("Blue")
+    RGB(r, g, b) => println("RGB: \{r}, \{g}, \{b}")
+    RGBA(r, g, b, a) => println("RGBA: \{r}, \{g}, \{b}, \{a}")
   }
 }
 
-/// Here are some useful patterns for arrays and structs.
+///| Here are some useful patterns for arrays and structs.
 fn basic_pattern_match(num : Int, color : Color) -> Unit {
   // 1. constant pattern
   match true {
@@ -63,12 +66,13 @@ fn basic_pattern_match(num : Int, color : Color) -> Unit {
   // 3. more array pattern 
   // Use ".." in array pattern to match the rest of the array.
   let array = [1, 2, 3, 4, 5]
-  let [d, e, ..] = array
-  let [.., f, g] = array
-  let [h,  ..,  i] = array
-  println("first two element of array: \{d}, \{e}")
-  println("last two element of array: \{f}, \{g}")
-  println("first and last element of array: \{h}, \{i}")
+  guard array is [d, e, ..]
+  guard array is [.., f, g]
+  guard array is [h, .., i]
+  
+  println("first two element of array: \{array[d]}, \{array[e]}")
+  println("last two element of array: \{array[f]}, \{array[g]}")
+  println("first and last element of array: \{array[h]}, \{array[i]}")
 
   // 4. more struct pattern
   // Use ".." in struct pattern to match the rest of the fields.
@@ -85,7 +89,7 @@ fn basic_pattern_match(num : Int, color : Color) -> Unit {
 
 }
 
-/// Patterns can be nested, give an alias, or use "|" to write multiple alternative patterns.
+///| Patterns can be nested, give an alias, or use "|" to write multiple alternative patterns.
 fn complex_pattern_match(
   num : Int,
   array : Array[Color],
@@ -94,39 +98,48 @@ fn complex_pattern_match(
 ) -> Unit {
   // Use or pattern "|" to compose multiple patterns.
   match (color, color2) {
-    (Red, Red) | (Blue, Blue) | (Green, Green) => println("both are red, blue or green")
+    (Red, Red) | (Green, Green) | (Blue, Blue) =>
+      println("both are red, green or blue")
     _ => println("others")
   }
 
   // Give an alias to the pattern by "pattern as name" so we can print the matched value.
   match array {
     // ignore the first element, and bind the rest to "rest".
-    [_, .. as rest] => println(rest)
+    [_, .. rest] => println(rest)
     _ => println("others")
   }
 
   // Match the enum constructor with variable patterns inside.
   // The r, g, b are the variable patterns inside.
   match color {
+    Blue => println("Blue")
+    Green => println("Green")
+    Red => println("Red")
     RGB(r, g, b) => println("RGB: \{r}, \{g}, \{b}")
+    RGBA(r, g, b, a) => println("RGBA: \{r}, \{g}, \{b}, \{a}")
   }
 
   // If two patterns introduce the same binding (same name and types), 
   // they can be combined with the or pattern.
   match color {
+    Blue => println("Blue")
+    Green => println("Green")
+    Red => println("Red")
     RGB(r, g, b) | RGBA(r, g, b, _) =>
       println("red, green and blue: \{r}, \{g}, \{b}")
   }
 }
 
-/// More pattern matching: map pattern
+///| More pattern matching: map pattern
 /// 
 fn map_pattern(map : Map[String, Point]) -> Unit {
   match map {
-    { "guest": { x, y } } => println("guest's position: \{x}, \{y}")
-    { "alice": alice_pos, "bob": bob_pos } => {
+    { "guest": { x, y }, .. } => println("guest's position: \{x}, \{y}")
+    { "alice": alice_pos, "bob": bob_pos, .. } => {
       println("alice's position: \{alice_pos}")
       println("bob's position: \{bob_pos}")
     }
+    _ => println("Parsing Error")
   }
 }
