@@ -54,17 +54,19 @@ fn make() -> @map.Map[Int, Int64] {
 
 - 计算半径为1、2、3的圆的面积：
 ```moonbit expr
+let pi = 3.1415
 let surface_r_1: Double = { let r = 1.0; pi * r * r }
 let surface_r_2: Double = { let r = 2.0; pi * r * r }
 let surface_r_3: Double = { let r = 3.0; pi * r * r }
-let result = (surface_r_1, surface_r_2, surface_r_3)
+let result:(Double, Double, Double) = (surface_r_1, surface_r_2, surface_r_3)
 ```
 
 - 使用函数后
 
 ```moonbit expr
+let pi = 3.1415
 fn area(radius: Double) -> Double { pi * radius * radius }
-let result = (area(1.0), area(2.0), area(3.0))
+let result:(Double, Double, Double) = (area(1.0), area(2.0), area(3.0))
 ```
 
 ---
