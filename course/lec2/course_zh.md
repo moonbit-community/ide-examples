@@ -379,7 +379,7 @@ let value: Int = {
 ```moonbit expr
 let y: Int = 10
 
-let value = {
+let value: Int = {
   let x = 1
   let tmp = 1 * 2 // 替换x
   let another_tmp = {
@@ -403,7 +403,7 @@ let value = {
 ```moonbit expr
 // 省略y的定义
 
-let value = {
+let value: Int = {
   // 省略x的定义
   let tmp = 2 // 简化右侧表达式
   let another_tmp = {
@@ -425,7 +425,7 @@ let value = {
 - 对剩余表达式进行化简
 
 ```moonbit expr
-let value = {
+let value: Int = {
 
   let tmp = 2
   let another_tmp = {
@@ -447,7 +447,7 @@ let value = {
 - 对剩余表达式进行化简
 
 ```moonbit expr
-let value = {
+let value: Int = {
 
   let tmp = 2
   let another_tmp = 3 // 简化右侧表达式
@@ -465,7 +465,7 @@ let value = {
 - 对剩余表达式进行化简
 
 ```moonbit expr
-let value = {
+let value: Int = {
 
   let tmp = 2
   let another_tmp = 3 // 简化右侧表达式
