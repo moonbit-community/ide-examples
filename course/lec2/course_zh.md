@@ -355,7 +355,7 @@ fn 顶层函数() -> Unit {
 ```moonbit expr
 let y: Int = 10
 
-let value = {
+let value: Int = {
   let x = 1
   let tmp = x * 2
   let another_tmp = {
