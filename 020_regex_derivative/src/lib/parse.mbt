@@ -1,3 +1,4 @@
+///|
 pub fn parse(src : String) -> Regex {
   let state = { src, offset: 0 }
   let r = parse_alt(state)
@@ -12,11 +13,13 @@ pub fn parse(src : String) -> Regex {
   r
 }
 
+///|
 priv struct ParseState {
   src : String
   mut offset : Int
 }
 
+///|
 fn parse_alt(state : ParseState) -> Regex {
   let mut r = parse_postfix(state)
   while state.offset < state.src.length() {
@@ -31,6 +34,7 @@ fn parse_alt(state : ParseState) -> Regex {
   r
 }
 
+///|
 fn parse_postfix(state : ParseState) -> Regex {
   let mut r = parse_atomic(state)
   while state.offset < state.src.length() {
@@ -50,6 +54,7 @@ fn parse_postfix(state : ParseState) -> Regex {
   r
 }
 
+///|
 fn parse_atomic(state : ParseState) -> Regex {
   if state.offset >= state.src.length() {
     return empty()
