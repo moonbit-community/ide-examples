@@ -12,30 +12,30 @@ enum Regex {
   Plus(Regex)
 }
 
-enum Symbol {
+priv enum Symbol {
   Any
   Chr(Char)
 } derive(Eq)
 
 // smart constructors.
 // Make the shape of regex more normalized, for easier equality test
-pub fn Regex::empty() -> Regex {
+pub fn empty() -> Regex {
   Empty
 }
 
-pub fn Regex::impossible() -> Regex {
+pub fn impossible() -> Regex {
   Impossible
 }
 
-pub fn Regex::chr(c : Char) -> Regex {
+pub fn chr(c : Char) -> Regex {
   Sym(Chr(c))
 }
 
-pub fn Regex::any() -> Regex {
+pub fn any() -> Regex {
   Sym(Any)
 }
 
-pub fn op_mul(self : Regex, r : Regex) -> Regex {
+pub impl Mul for Regex with op_mul(self : Regex, r : Regex) -> Regex {
   match (self, r) {
     (Empty, r) | (r, Empty) => r
     (Impossible, _) | (_, Impossible) => Impossible
@@ -44,7 +44,7 @@ pub fn op_mul(self : Regex, r : Regex) -> Regex {
   }
 }
 
-pub fn op_add(self : Regex, r : Regex) -> Regex {
+pub impl Add for Regex with op_add(self : Regex, r : Regex) -> Regex {
   match (self, r) {
     (Impossible, r) | (r, Impossible) => r
     (Alternative(r1, r2), r) => Alternative(r1, Alternative(r2, r))
@@ -58,17 +58,17 @@ pub fn op_add(self : Regex, r : Regex) -> Regex {
   }
 }
 
-pub fn Regex::star(r : Regex) -> Regex {
+pub fn star(r : Regex) -> Regex {
   Star(r)
 }
 
-pub fn Regex::plus(r : Regex) -> Regex {
+pub fn plus(r : Regex) -> Regex {
   Plus(r)
 }
 
 /// simple, approximated equality test on regular expression.
 /// Input should be consturcted from smart constructors
-fn op_equal(self : Regex, r : Regex) -> Bool {
+impl Eq for Regex with op_equal(self : Regex, r : Regex) -> Bool {
   match (self, r) {
     (Empty, Empty) => true
     (Impossible, Impossible) => true
@@ -81,7 +81,7 @@ fn op_equal(self : Regex, r : Regex) -> Bool {
 }
 
 /// check if a regular expression accepts the empty string
-fn nullable(self : Regex) -> Bool {
+fn Regex::nullable(self : Regex) -> Bool {
   match self {
     Empty => true
     Impossible => false
@@ -95,7 +95,7 @@ fn nullable(self : Regex) -> Bool {
 
 /// `r.derivative(c)` returns a regular expression `r'`,
 /// such that `r` matches `c ++ s` if and only if `r'` matches `s`
-fn derivative(self : Regex, c : Symbol) -> Regex {
+fn Regex::derivative(self : Regex, c : Symbol) -> Regex {
   match self {
     Empty => impossible()
     Impossible => impossible()
@@ -122,7 +122,7 @@ fn derivative(self : Regex, c : Symbol) -> Regex {
 /// Decides if a string matches a regular expression.
 ///
 /// This is a simple but slow implementation based on derivative, similar to an interpreter
-pub fn matches(self : Regex, s : String) -> Bool {
+pub fn Regex::matches(self : Regex, s : String) -> Bool {
   let mut r = self
   let mut i = 0
   while i < s.length() {
@@ -130,7 +130,7 @@ pub fn matches(self : Regex, s : String) -> Bool {
       Impossible => return false
       _ => ()
     }
-    r = match r.derivative(Chr(s[i])) {
+    r = match r.derivative(Chr(s.char_at(i))) {
       Impossible => r.derivative(Any)
       rd => rd
     }
@@ -147,11 +147,11 @@ priv struct State {
 }
 
 /// checks whether `self` accepts the sub string of `s` starting from `offset`
-fn accepts(self : State, s : String, offset : Int) -> Bool {
+fn State::accepts(self : State, s : String, offset : Int) -> Bool {
   if offset >= s.length() {
     return self.accepting
   }
-  match List::assoc(self.transitions, Chr(s[offset])) {
+  match List::assoc(self.transitions, Chr(s.char_at(offset))) {
     Some(next_state) => next_state.accepts(s, offset + 1)
     None =>
       match List::assoc(self.transitions, Any) {
@@ -161,7 +161,7 @@ fn accepts(self : State, s : String, offset : Int) -> Bool {
   }
 }
 
-fn State::op_equal(s1 : State, s2 : State) -> Bool {
+impl Eq for State with op_equal(s1 : State, s2 : State) -> Bool {
   physical_equal(s1, s2)
 }
 
@@ -169,11 +169,11 @@ fn State::op_equal(s1 : State, s2 : State) -> Bool {
 /// Allows efficient matching.
 type CompiledRegex State
 
-pub fn matches(self : CompiledRegex, s : String) -> Bool {
+pub fn CompiledRegex::matches(self : CompiledRegex, s : String) -> Bool {
   self._.accepts(s, 0)
 }
 
-pub fn dump(self : CompiledRegex) -> Unit {
+pub fn CompiledRegex::dump(self : CompiledRegex) -> Unit {
   let mut states : List[(State, Int)] = Nil
   let mut counter : Int = 0
   fn collect_states(s : State) {
@@ -224,7 +224,7 @@ pub fn dump(self : CompiledRegex) -> Unit {
 }
 
 /// compile a regular expression to a state machine
-pub fn compile(self : Regex) -> CompiledRegex {
+pub fn Regex::compile(self : Regex) -> CompiledRegex {
   let mut current_states : List[(Regex, State)] = Nil
   fn go(r : Regex) {
     match List::assoc(current_states, r) {
@@ -254,7 +254,7 @@ pub fn compile(self : Regex) -> CompiledRegex {
 // helper functions
 
 // calculate the list of characters that may appear in the front of a regular expression
-fn head_symbols(self : Regex) -> List[Symbol] {
+fn Regex::head_symbols(self : Regex) -> List[Symbol] {
   fn go(acc : List[Symbol], r : Regex) {
     match r {
       Empty | Impossible => acc
@@ -288,7 +288,7 @@ fn List::assoc[K : Eq, V](lst : List[(K, V)], key : K) -> V? {
   }
 }
 
-fn iter[X](self : List[X], f : (X) -> Unit) -> Unit {
+fn List::iter[X](self : List[X], f : (X) -> Unit) -> Unit {
   match self {
     Nil => ()
     Cons(hd, tl) => {
@@ -298,14 +298,14 @@ fn iter[X](self : List[X], f : (X) -> Unit) -> Unit {
   }
 }
 
-fn contains[X : Eq](self : List[X], elem : X) -> Bool {
+fn List::contains[X : Eq](self : List[X], elem : X) -> Bool {
   match self {
     Nil => false
     Cons(hd, tl) => hd == elem || tl.contains(elem)
   }
 }
 
-enum List[X] {
+priv enum List[X] {
   Nil
   Cons(X, List[X])
-}
+} derive(Eq)

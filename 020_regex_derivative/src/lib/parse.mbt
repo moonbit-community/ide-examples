@@ -1,10 +1,10 @@
-pub fn Regex::parse(src : String) -> Regex {
+pub fn parse(src : String) -> Regex {
   let state = { src, offset: 0 }
   let r = parse_alt(state)
   if state.offset < state.src.length() {
     abort(
       "unexpected character " +
-      state.src[state.offset].to_string() +
+      state.src.char_at(state.offset).to_string() +
       " at index " +
       state.offset.to_string(),
     )
@@ -12,7 +12,7 @@ pub fn Regex::parse(src : String) -> Regex {
   r
 }
 
-struct ParseState {
+priv struct ParseState {
   src : String
   mut offset : Int
 }
@@ -20,7 +20,7 @@ struct ParseState {
 fn parse_alt(state : ParseState) -> Regex {
   let mut r = parse_postfix(state)
   while state.offset < state.src.length() {
-    match state.src[state.offset] {
+    match state.src.char_at(state.offset) {
       '|' => {
         state.offset = state.offset + 1
         r = r + parse_postfix(state)
@@ -34,7 +34,7 @@ fn parse_alt(state : ParseState) -> Regex {
 fn parse_postfix(state : ParseState) -> Regex {
   let mut r = parse_atomic(state)
   while state.offset < state.src.length() {
-    match state.src[state.offset] {
+    match state.src.char_at(state.offset) {
       '*' => {
         r = star(r)
         state.offset = state.offset + 1
@@ -54,7 +54,7 @@ fn parse_atomic(state : ParseState) -> Regex {
   if state.offset >= state.src.length() {
     return empty()
   }
-  match state.src[state.offset] {
+  match state.src.char_at(state.offset) {
     '(' => {
       let paren_pos = state.offset
       state.offset = state.offset + 1
@@ -62,7 +62,7 @@ fn parse_atomic(state : ParseState) -> Regex {
       if state.offset >= state.src.length() {
         abort("unmatched parenthesis at offset at index \{paren_pos}")
       }
-      match state.src[state.offset] {
+      match state.src.char_at(state.offset) {
         ')' => state.offset = state.offset + 1
         _ => abort("unmatched parenthesis at offset at index \{paren_pos}")
       }
@@ -75,7 +75,7 @@ fn parse_atomic(state : ParseState) -> Regex {
       if state.offset >= state.src.length() {
         abort("bad escape sequence at index " + state.offset.to_string())
       }
-      let c = state.src[state.offset]
+      let c = state.src.char_at(state.offset)
       state.offset = state.offset + 1
       chr(c)
     }
