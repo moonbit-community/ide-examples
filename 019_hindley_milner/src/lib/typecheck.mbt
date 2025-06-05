@@ -1,16 +1,19 @@
-pub enum Type {
+///|
+pub(all) enum Type {
   T_Var(Ref[Tvar])
   T_Lam(Type, Type)
   T_Con(String)
   T_App(Type, Type)
 } derive(Show)
 
+///|
 enum Tvar {
   Free(Int, Int)
   Generic(Int)
   Solved(Type)
 } derive(Show)
 
+///|
 enum Expr {
   Var(String)
   Con(String)
@@ -20,20 +23,25 @@ enum Expr {
 } derive(Show)
 
 // type operations
+
+///|
 let counter : Ref[Int] = { val: 0 }
 
+///|
 fn fresh(lvl : Int) -> Type {
   let tag = counter.val
   counter.val = tag + 1
   T_Var({ val: Free(tag, lvl) })
 }
 
+///|
 pub fn fresh_generic() -> Type {
   let tag = counter.val
   counter.val = tag + 1
   T_Var({ val: Generic(tag) })
 }
 
+///|
 fn repr(self : Type) -> Type {
   match self {
     T_Var({ val: Solved(ty) } as tvar) => {
@@ -45,12 +53,14 @@ fn repr(self : Type) -> Type {
   }
 }
 
+///|
 type! TypeCheckError {
   OccursError
   TypeMismatchError
   VariableNotFoundError(String)
 }
 
+///|
 fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
   match self.repr() {
     T_Var({ val: Free(my_tag, my_lvl) } as tvar) =>
@@ -68,6 +78,7 @@ fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
   }
 }
 
+///|
 fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
   match (t1.repr(), t2.repr()) {
     (T_Var({ val: Free(tag, lvl) } as tv), ty)
@@ -92,6 +103,7 @@ fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
   }
 }
 
+///|
 pub fn generalize(self : Type, lvl : Int) -> Type {
   match self.repr() {
     T_Var({ val: Free(tag, my_lvl) } as tv) as ty => {
@@ -106,6 +118,7 @@ pub fn generalize(self : Type, lvl : Int) -> Type {
   }
 }
 
+///|
 fn instantiate(self : Type) -> Type {
   let mut subst = Map::Empty
   fn go(ty : Type) {
@@ -128,6 +141,7 @@ fn instantiate(self : Type) -> Type {
   go(self)
 }
 
+///|
 pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
   match expr {
     Var(name) =>
@@ -155,12 +169,14 @@ pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
   }
 }
 
+///|
 enum Map[K, V] {
   Empty
   Extend(K, V, Map[K, V])
 }
 
-fn find[K : Eq, V](self : Map[K, V], key : K) -> V? {
+///|
+fn[K : Eq, V] find(self : Map[K, V], key : K) -> V? {
   match self {
     Empty => None
     Extend(my_key, my_value, rest) =>
@@ -172,14 +188,16 @@ fn find[K : Eq, V](self : Map[K, V], key : K) -> V? {
   }
 }
 
-fn length[K, V](self : Map[K, V]) -> Int {
+///|
+fn[K, V] length(self : Map[K, V]) -> Int {
   match self {
     Empty => 0
     Extend(_, _, rest) => rest.length() + 1
   }
 }
 
-pub fn Map::of_array[K, V](xs : Array[(K, V)]) -> Map[K, V] {
+///|
+pub fn[K, V] Map::of_array(xs : Array[(K, V)]) -> Map[K, V] {
   let mut result : Map[_] = Empty
   for i = xs.length() - 1; i >= 0; i = i - 1 {
     let (k, v) = xs[i]
@@ -188,15 +206,18 @@ pub fn Map::of_array[K, V](xs : Array[(K, V)]) -> Map[K, V] {
   result
 }
 
-// pretty printer for type
+///|
+/// pretty printer for type
 pub fn pretty(self : Type) -> Unit {
   let mut subst : Map[Int, String] = Empty
-  let buf = Buffer::new(size_hint=100)
+  let buf = @buffer.new(size_hint=100)
   fn show_var(tag : Int) -> String {
     match subst.find(tag) {
       Some(name) => name
       None => {
-        let name = "abcdefghijklmnopqrstuvwxyz"[subst.length()].to_string()
+        let name = "abcdefghijklmnopqrstuvwxyz"
+          .char_at(subst.length())
+          .to_string()
         subst = Extend(tag, name, subst)
         name
       }

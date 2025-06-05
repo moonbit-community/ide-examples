@@ -9,6 +9,7 @@
 // The type checker supports higher kinded polymorphism via constructor classes.
 // You can play with more complex examples by adding more primitives to [prelude] below.
 
+///|
 fn main {
   run(
     #| let id = fun x -> x in
@@ -44,40 +45,43 @@ fn main {
   run("fun x -> x x")
 }
 
+///|
 fn run(src : String) -> Unit {
-  try {
-    parse_and_check!(src).pretty()
-  } catch {
+  try parse_and_check!(src).pretty() catch {
     err => println(err)
   }
 }
 
+///|
 fn parse_and_check(src : String) -> @lib.Type!Error {
   let t = @lib.Tokenizer::make(src)
   let expr = t.parse_whole_file!()
   @lib.infer!(prelude, expr).generalize(0)
 }
 
-let prelude : @lib.Map[String, @lib.Type] = @lib.Map::of_array(
-  [
-    ("nil", forall(fn(a) { list(a) })),
-    ("cons", forall(fn(a) { lam([a, list(a)], list(a)) })),
-    ("fold", forall2(fn(a, b) { lam([lam([a, b], b), list(a), b], b) })),
-  ],
-)
+///|
+let prelude : @lib.Map[String, @lib.Type] = @lib.Map::of_array([
+  ("nil", forall(fn(a) { list(a) })),
+  ("cons", forall(fn(a) { lam([a, list(a)], list(a)) })),
+  ("fold", forall2(fn(a, b) { lam([lam([a, b], b), list(a), b], b) })),
+])
 
+///|
 fn forall(f : (@lib.Type) -> @lib.Type) -> @lib.Type {
   f(@lib.fresh_generic())
 }
 
+///|
 fn forall2(f : (@lib.Type, @lib.Type) -> @lib.Type) -> @lib.Type {
   f(@lib.fresh_generic(), @lib.fresh_generic())
 }
 
+///|
 fn list(a : @lib.Type) -> @lib.Type {
   @lib.T_App(@lib.T_Con("List"), a)
 }
 
+///|
 fn lam(args : Array[@lib.Type], ret : @lib.Type) -> @lib.Type {
   let mut result = ret
   for i = args.length() - 1; i >= 0; i = i - 1 {

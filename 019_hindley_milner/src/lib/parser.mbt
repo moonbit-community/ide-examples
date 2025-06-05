@@ -1,6 +1,7 @@
 // A simple hand-writter LL(1) parser
 
-enum Token {
+///|
+priv enum Token {
   LET
   EQUAL
   IN
@@ -13,6 +14,7 @@ enum Token {
   EOF
 } derive(Show, Eq)
 
+///|
 struct Tokenizer {
   mut token_start : Int
   mut cursor : Int
@@ -20,17 +22,20 @@ struct Tokenizer {
   mut cur_token : Token
 }
 
+///|
 pub fn Tokenizer::make(src : String) -> Tokenizer {
   { token_start: 0, cursor: 0, src, cur_token: EOF }
 }
 
+///|
 fn peek_char(self : Tokenizer) -> Char? {
   if self.cursor >= self.src.length() {
     return None
   }
-  Some(self.src[self.cursor])
+  Some(self.src.char_at(self.cursor))
 }
 
+///|
 fn next_char(self : Tokenizer) -> Char? {
   let c = self.peek_char()
   match c {
@@ -40,10 +45,12 @@ fn next_char(self : Tokenizer) -> Char? {
   c
 }
 
+///|
 fn lexeme(self : Tokenizer) -> String {
   self.src.substring(start=self.token_start, end=self.cursor)
 }
 
+///|
 fn peek(self : Tokenizer) -> Token!TokenError {
   if self.cursor == 0 {
     self.cur_token = self.do_next!()
@@ -51,12 +58,14 @@ fn peek(self : Tokenizer) -> Token!TokenError {
   self.cur_token
 }
 
+///|
 fn next(self : Tokenizer) -> Token!TokenError {
   let tok = self.peek!()
   self.cur_token = self.do_next!()
   tok
 }
 
+///|
 type! TokenError {
   BadTokenError(String)
   InvalidCharacterError(String)
@@ -64,6 +73,7 @@ type! TokenError {
   UnexpectedTokenError(String)
 } derive(Show)
 
+///|
 fn do_next(self : Tokenizer) -> Token!TokenError {
   self.token_start = self.cursor
   let c = match self.next_char() {
@@ -96,6 +106,7 @@ fn do_next(self : Tokenizer) -> Token!TokenError {
   }
 }
 
+///|
 fn next_ident(self : Tokenizer) -> String {
   match self.peek_char() {
     None => self.lexeme()
@@ -112,12 +123,14 @@ fn next_ident(self : Tokenizer) -> String {
   }
 }
 
+///|
 pub fn parse_whole_file(self : Tokenizer) -> Expr!TokenError {
   let expr = self.parse_expr!()
   self.expect_token!(EOF)
   expr
 }
 
+///|
 fn parse_expr(self : Tokenizer) -> Expr!TokenError {
   match self.peek!() {
     EOF => raise UnexpectedEofError
@@ -153,6 +166,7 @@ fn parse_expr(self : Tokenizer) -> Expr!TokenError {
   }
 }
 
+///|
 fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
   match self.next!() {
     IDENT(id) => Var(id)
@@ -171,6 +185,7 @@ fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
   }
 }
 
+///|
 fn expect_ident(self : Tokenizer) -> String!TokenError {
   match self.next!() {
     IDENT(id) => id
@@ -183,6 +198,7 @@ fn expect_ident(self : Tokenizer) -> String!TokenError {
   }
 }
 
+///|
 fn expect_token(self : Tokenizer, tok : Token) -> Unit!TokenError {
   let next_tok = self.next!()
   if next_tok == tok {
