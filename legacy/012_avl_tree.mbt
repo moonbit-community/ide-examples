@@ -7,7 +7,7 @@
 /// `Node` represents a node in the AVL tree with left child, value, right child, and height
 enum T[U] {
   Empty
-  Node(~left : T[U], ~elem : U, ~right : T[U], ~height : Int)
+  Node(left~ : T[U], elem~ : U, right~ : T[U], height~ : Int)
 }
 
 /// `height[U](self: T[U])`
@@ -16,7 +16,7 @@ enum T[U] {
 fn height[U](self : T[U]) -> Int {
   match self {
     Empty => 0
-    Node(~height, ..) => height
+    Node(height~, ..) => height
   }
 }
 
@@ -26,7 +26,7 @@ fn height[U](self : T[U]) -> Int {
 fn create[U](left : T[U], elem : U, right : T[U]) -> T[U] {
   let hl = left.height()
   let hr = right.height()
-  Node(~left, ~right, ~elem, height=if hl >= hr { hl + 1 } else { hr + 1 })
+  Node(left~, right~, elem~, height=if hl >= hr { hl + 1 } else { hr + 1 })
 }
 
 /// `bal[U](l: T[U], v: U, r: T[U])`
@@ -150,11 +150,11 @@ fn remove[U : Compare](self : T[U], x : U) -> T[U] {
 /// `to_string[U:Show](self: T[U]) -> String`
 ///
 /// convert the AVL tree to string.
-pub fn to_string[U : Show](self : T[U]) -> String {
+impl[U: Show] Show for T[U] with output(self : T[U], logger : &Logger) -> Unit {
   match self {
-    Empty => "()"
-    Node(left=Empty, elem=v, right=Empty, ..) => v.to_string()
-    Node(left=l, elem=v, right=r, ..) => "(\{l}, \{v}, \{r})"
+    Empty => logger.write_string("()")
+    Node(left=Empty, elem=v, right=Empty, ..) => logger.write_object(v)
+    Node(left=l, elem=v, right=r, ..) => logger.write_string("(\{l}, \{v}, \{r})")
   }
 }
 

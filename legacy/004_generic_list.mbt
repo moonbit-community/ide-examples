@@ -1,10 +1,11 @@
 // This example implements a generic linked list data structure,
 // and various operations on it in MoonBit
 
+///|
 fn main {
   let ls = List::from_array([1, 2, 3, 4, 5]) // create a new List
-  .map(fn { x => x * 2 }) // double each element
-  .filter(fn { x => x < 9 }) // pick those smaller than 9
+    .map(fn { x => x * 2 }) // double each element
+    .filter(fn { x => x < 9 }) // pick those smaller than 9
   println(ls)
 
   // use `reduce` to calculate the sum of each elements
@@ -15,31 +16,37 @@ fn main {
   let ary = ls.collect()
   let len = ary.length()
   println("length: \{len}")
+
+  // print each element of List `ls`
+  for i in ls {
+    println("element: \{i}")
+  }
 }
 
+///|
 enum List[X] {
   Nil
   Cons(X, List[X])
 }
 
-/// OO style
-pub fn concat[X](self : List[X], ys : List[X]) -> List[X] {
+///| OO style
+pub fn[X] concat(self : List[X], ys : List[X]) -> List[X] {
   match self {
     Nil => ys
-    Cons(x, rest) => Cons(x, concat(rest, ys))
+    Cons(x, rest) => Cons(x, rest.concat(ys))
   }
 }
 
-/// apply function `f` to each element of List, collect the results into a new List.
-fn map[X, Y](self : List[X], f : (X) -> Y) -> List[Y] {
+///| apply function `f` to each element of List, collect the results into a new List.
+fn[X, Y] map(self : List[X], f : (X) -> Y) -> List[Y] {
   match self {
     Nil => Nil
-    Cons(x, rest) => Cons(f(x), map(rest, f))
+    Cons(x, rest) => Cons(f(x), rest.map(f))
   }
 }
 
-/// reverse the List.
-pub fn reverse[X](self : List[X]) -> List[X] {
+///| reverse the List.
+pub fn[X] reverse(self : List[X]) -> List[X] {
   fn go(acc, xs : List[X]) {
     match xs {
       Nil => acc
@@ -50,27 +57,30 @@ pub fn reverse[X](self : List[X]) -> List[X] {
   go(Nil, self)
 }
 
-/// apply function `f` to each element of List.
-pub fn iter[X](self : List[X], f : (X) -> Unit) -> Unit {
-  match self {
-    Nil => ()
-    Cons(x, rest) => {
-      f(x)
-      iter(rest, f)
-    }
-  }
+///| apply function `f` to each element of List.
+pub fn[X] iter(self : List[X]) -> Iter[X] {
+  Iter::new(fn {
+    yield_ =>
+      loop self {
+        Nil => IterContinue
+        Cons(x, rest) => {
+          guard yield_(x) is IterContinue else { return IterEnd }
+          continue rest
+        }
+      }
+  })
 }
 
-/// construct List from Array.
-fn List::from_array[T](arr : Array[T]) -> List[T] {
+///| construct List from Array.
+fn[T] List::from_array(arr : Array[T]) -> List[T] {
   loop arr.length() - 1, List::Nil {
     0, acc => List::Cons(arr[0], acc)
     i, acc => continue i - 1, List::Cons(arr[i], acc)
   }
 }
 
-/// collect each elements of List into new Array
-fn collect[T](self : List[T]) -> Array[T] {
+///| collect each elements of List into new Array
+fn[T] collect(self : List[T]) -> Array[T] {
   match self {
     Nil => abort("List::collect")
     Cons(x, _) => {
@@ -91,47 +101,49 @@ fn collect[T](self : List[T]) -> Array[T] {
   }
 }
 
-/// returns the List of those elements that satisfy the predicate.
-fn filter[T](self : List[T], predicate : (T) -> Bool) -> List[T] {
+///| returns the List of those elements that satisfy the predicate.
+fn[T] filter(self : List[T], predicate : (T) -> Bool) -> List[T] {
   match self {
     Nil => Nil
     Cons(x, xs) =>
       if predicate(x) {
-        Cons(x, filter(xs, predicate))
+        Cons(x, xs.filter(predicate))
       } else {
-        filter(xs, predicate)
+        xs.filter(predicate)
       }
   }
 }
 
-/// length of List
-fn length[T](self : List[T]) -> Int {
+///| length of List
+fn[T] length(self : List[T]) -> Int {
   match self {
     Nil => 0
     Cons(_, xs) => 1 + xs.length()
   }
 }
 
-fn reduce[T](self : List[T], accumulator : (T, T) -> T, initial : T) -> T {
+///|
+fn[T] reduce(self : List[T], accumulator : (T, T) -> T, initial : T) -> T {
   match self {
     Nil => initial
-    Cons(x, xs) => reduce(xs, accumulator, accumulator(initial, x))
+    Cons(x, xs) => xs.reduce(accumulator, accumulator(initial, x))
   }
 }
 
-/// convert list to string
-fn to_string[T : Show](self : List[T]) -> String {
+///| convert list to string
+impl[T : Show] Show for List[T] with output(self : List[T], logger : &Logger) -> Unit {
   fn go(ls : List[T]) {
     match ls {
-      Nil => ""
-      Cons(x, Nil) => "\{x}"
-      Cons(x, xs) => "\{x}, " + go(xs)
+      Nil => ()
+      Cons(x, Nil) => logger..write_string("\{x}")
+      Cons(x, xs) => {
+        logger..write_string("\{x}, ")
+        go(xs)
+      }
     }
   }
 
-  "[" + go(self) + "]"
-}
-
-fn output[T : Show](self : List[T], logger : Logger) -> Unit {
-  logger.write_string(self.to_string())
+  logger.write_char('[')
+  go(self)
+  logger.write_char(']')
 }

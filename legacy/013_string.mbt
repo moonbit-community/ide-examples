@@ -6,10 +6,10 @@ enum T {
 }
 
 /// convert T to string
-fn to_string(self : T) -> String {
+impl Show for T with output(self : T, logger : &Logger) -> Unit {
   match self {
-    A => "A"
-    B => "B"
+    A => logger.write_string("A")
+    B => logger.write_string("B")
   }
 }
 
@@ -28,5 +28,6 @@ fn main {
     #| A
     #| multi-line
     #| string
+    $| \{b}
   println(m)
 }

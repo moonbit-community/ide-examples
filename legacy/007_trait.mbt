@@ -2,19 +2,14 @@
 // MoonBit's trait system is structural:
 // types with all required methods automatically implement a trait.
 
-/// [Number] trait captures the common operations of number-like types
-trait Number {
+///| [Number] trait captures the common operations of number-like types
+trait Number: Add + Sub + Mul + Div + Neg {
   from_int(Int) -> Self
-  op_add(Self, Self) -> Self
-  op_sub(Self, Self) -> Self
-  op_mul(Self, Self) -> Self
-  op_div(Self, Self) -> Self
-  op_neg(Self) -> Self
 }
 
-/// [average] is a generic function
+///| [average] is a generic function
 /// that calculates the average of an array of any number-like type
-fn average[N : Number](xs : Array[N]) -> N {
+fn[N : Number] average(xs : Array[N]) -> N {
   for i = 0, sum = N::from_int(0); i < xs.length(); i = i + 1, sum = sum + xs[i] {
 
   } else {
@@ -22,11 +17,13 @@ fn average[N : Number](xs : Array[N]) -> N {
   }
 }
 
+///|
 struct Point[N] {
   x : N
   y : N
 } derive(Show)
 
+///|
 fn main {
   let xs = [1, 2, 3, 4, 5]
   println(average(xs))
@@ -50,28 +47,42 @@ fn main {
 
 // implement [Number] for [Point]
 
-fn Point::from_int[N : Number](i : Int) -> Point[N] {
+///|
+impl[N : Number] Number for Point[N] with from_int(i : Int) -> Point[N] {
   let n = N::from_int(i)
   { x: n, y: n }
 }
 
-fn op_add[N : Number](self : Point[N], other : Point[N]) -> Point[N] {
+///|
+impl[N : Number] Add for Point[N] with op_add(self : Point[N], other : Point[N]) -> Point[
+  N,
+] {
   { x: self.x + other.x, y: self.y + other.y }
 }
 
-fn op_sub[N : Number](self : Point[N], other : Point[N]) -> Point[N] {
+///|
+impl[N : Number] Sub for Point[N] with op_sub(self : Point[N], other : Point[N]) -> Point[
+  N,
+] {
   { x: self.x - other.x, y: self.y - other.y }
 }
 
-fn op_mul[N : Number](self : Point[N], other : Point[N]) -> Point[N] {
+///|
+impl[N : Number] Mul for Point[N] with op_mul(self : Point[N], other : Point[N]) -> Point[
+  N,
+] {
   { x: self.x * other.x, y: self.y * other.y }
 }
 
-fn op_div[N : Number](self : Point[N], other : Point[N]) -> Point[N] {
+///|
+impl[N : Number] Div for Point[N] with op_div(self : Point[N], other : Point[N]) -> Point[
+  N,
+] {
   { x: self.x / other.x, y: self.y / other.y }
 }
 
-fn op_neg[N : Number](self : Point[N]) -> Point[N] {
+///|
+impl[N : Number] Neg for Point[N] with op_neg(self : Point[N]) -> Point[N] {
   { x: -self.x, y: -self.y }
 }
 
@@ -83,6 +94,12 @@ fn op_neg[N : Number](self : Point[N]) -> Point[N] {
 // To handle this kind of scenario, MoonBit provides a mechanism called extension methods.
 // Extension methods allow you to implement new traits for foreign types, if you are the owner of the trait.
 // Extension methods can only be used to implement the specified trait, and cannot be called via dot-syntax directly
-impl Number for Int with from_int(x : Int) -> Int { x }
+///|
+impl Number for Int with from_int(x : Int) -> Int {
+  x
+}
 
-impl Number for Double with from_int(x : Int) -> Double { x.to_double() }
+///|
+impl Number for Double with from_int(x : Int) -> Double {
+  x.to_double()
+}

@@ -1,44 +1,25 @@
 // This example implements a simple functional queue data structure in MoonBit
 
+///|
 struct Queue[T] {
-  front : @immut/list.T[T]
-  back : @immut/list.T[T]
+  front : @list.T[T]
+  back : @list.T[T]
 }
 
-/// `from_list[T](front: @immut/list.List[T])`
-///
-/// Create a queue from a list.
-fn from_list[T](front : @immut/list.T[T]) -> Queue[T] {
-  { front, back: Nil }
+///| Create a queue from a list.
+fn[T] from_list(front : @list.T[T]) -> Queue[T] {
+  { front, back: @list.empty() }
 }
 
-/// `is_empty[T](q: Queue[T])`
-///
-/// Check if a given queue is empty.
-fn is_empty[T](q : Queue[T]) -> Bool {
+///| Check if a given queue is empty.
+fn[T] is_empty(q : Queue[T]) -> Bool {
   match q {
-    { front: Nil, back: Nil } => true
+    { front: Empty, back: Empty } => true
     _ => false
   }
 }
 
-/// `list_rev[T](xs: @immut/list.List[T])`
-///
-/// Reverse a list using tail-recursive pattern matching.
-fn list_rev[T](xs : @immut/list.T[T]) -> @immut/list.T[T] {
-  fn go(acc, xs : @immut/list.T[T]) {
-    match xs {
-      Nil => acc
-      Cons(x, rest) => go((Cons(x, acc) : @immut/list.T[T]), rest)
-    }
-  }
-
-  go(Nil, xs)
-}
-
-/// `norm[T](q: Queue[T])`
-///
-/// Normalize a queue by reversing its back portion and updating the front and back pointers accordingly.
+///| Normalize a queue by reversing its back portion and updating the front and back pointers accordingly.
 ///
 /// # Examples
 /// ```moonbit
@@ -54,16 +35,14 @@ fn list_rev[T](xs : @immut/list.T[T]) -> @immut/list.T[T] {
 /// let result = norm(emptyQueue)
 /// // result will be { front: Nil, back: Nil }
 /// ```
-fn norm[T](q : Queue[T]) -> Queue[T] {
+fn[T] Queue::norm(q : Queue[T]) -> Queue[T] {
   match q {
-    { front: Nil, back: b } => { front: list_rev(b), back: Nil }
+    { front: Empty, back: b } => { front: b.rev(), back: @list.empty() }
     q => q
   }
 }
 
-/// `enqueue[T](q: Queue[T], x: T)`
-///
-/// Enqueue an element into a queue using pattern matching.
+///| Enqueue an element into a queue using pattern matching.
 ///
 /// # Examples
 /// ```moonbit
@@ -73,72 +52,50 @@ fn norm[T](q : Queue[T]) -> Queue[T] {
 ///
 /// In the example above, `enqueue` is called to enqueue the element `42` into the queue `q`,
 /// resulting in a new queue `newQ` with the element enqueued at the back.
-fn enqueue[T](q : Queue[T], x : T) -> Queue[T] {
+fn[T] Queue::enqueue(q : Queue[T], x : T) -> Queue[T] {
   match q {
-    { front: f, back: b } => norm({ front: f, back: Cons(x, b) })
+    { front: f, back: b } => { front: f, back: b.add(x) }.norm()
   }
 }
 
-/// `peek[T](q: Queue[T])`
-///
-/// Peek at the front element.
-fn peek[T](q : Queue[T]) -> T? {
+///| Peek at the front element.
+fn[T] Queue::peek(q : Queue[T]) -> T? {
   match q {
-    { front: Nil, back: _ } => None
-    { front: Cons(x, _), back: _ } => Some(x)
+    { front: Empty, back: _ } => None
+    { front: More(x, ..), back: _ } => Some(x)
   }
 }
 
-/// `dequeue[T](q: Queue[T])`
-///
-/// Dequeues an element from the front of the given queue and returns the resulting queue.
-fn dequeue[T](q : Queue[T]) -> Queue[T]? {
+///| Dequeues an element from the front of the given queue and returns the resulting queue.
+fn[T] Queue::dequeue(q : Queue[T]) -> Queue[T]? {
   match q {
-    { front: Nil, back: _ } => None
-    { front: Cons(_, f), back: b } => Some(norm({ front: f, back: b }))
+    { front: Empty, back: _ } => None
+    { front: More(_, tail=f), back: b } => Some({ front: f, back: b }.norm())
   }
 }
 
-/// `to_list[T](self: Array[T])`
-///
-/// Convert an array to a linked list using recursion.
-fn Queue::from_array[T](arr : Array[T]) -> Queue[T] {
-  loop arr.length(), @immut/list.T::Nil {
+///| Convert an array to a linked list using recursion.
+fn[T] from_array(arr : Array[T]) -> Queue[T] {
+  (loop arr.length(), @list.empty() {
     0, acc => acc
-    i, acc => continue i - 1, @immut/list.T::Cons(arr[i - 1], acc)
-  }
+    i, acc => continue i - 1, acc.add(arr[i - 1])
+  })
   |> from_list
 }
 
+///|
 fn main {
-  let q0 = Queue::from_array([])
+  let q0 = from_array([])
   if is_empty(q0) {
-    let q0 = enqueue(q0, 1)
-    match peek(q0) {
-      Some(x) => println(x)
-      _ => println("error")
-    }
+    let q0_ = q0.enqueue(1)
+    guard q0_.peek() is Some(1)
   }
-  let q1 = Queue::from_array([10, 20, 30])
-  match peek(q1) {
-    Some(x) => println(x)
-    None => println("error")
-  }
-  match dequeue(q1) {
-    None => abort("error")
-    Some(q2) =>
-      match peek(q2) {
-        Some(x) => println(x)
-        None => println("error")
-      }
-  }
-  let q3 = enqueue(enqueue(from_list(Nil), 1), 2)
-  match dequeue(q3) {
-    Some(q4) =>
-      match dequeue(q4) {
-        Some(_q5) => println("success")
-        None => println("error")
-      }
-    None => println("error")
-  }
+  let q1 = from_array([10, 20, 30])
+  guard q1.peek() is Some(x)
+  println(x)
+  guard q1.dequeue() is Some(q2) && q2.peek() is Some(y)
+  println(y)
+  let q3 = from_list(@list.empty()).enqueue(1).enqueue(2)
+  guard q3.dequeue() is Some(q4) && q4.dequeue() is Some(_q5)
+  println("Success")
 }

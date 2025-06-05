@@ -1,61 +1,60 @@
 // This example implements an imperative vector data structure in MoonBit,
 // which support `O(1)` random access and amortized `O(1)` `push`/`pop` operations
 
+///|
 struct Vector[X] {
   mut data : Array[X]
   mut len : Int
 }
 
-/// `to_string[X : Show](self : Vector[X]) -> String`
-///
-/// convert a vector to string, type inside the vector must have method `to_string`
-fn to_string[T : Show](self : Vector[T]) -> String {
+///|
+impl[T : Show] Show for Vector[T] with output(
+  self : Vector[T],
+  logger : &Logger
+) -> Unit {
   let mut str = "["
   for i = 0; i <= self.length(); i = i + 1 {
-    str = str + match self[i] {
+    str = str +
+      (match self[i] {
         Some(x) => x.to_string()
         None => "]"
-      }
+      })
   }
-  str
+  logger.write_string(str)
 }
 
-fn output[T : Show](self : Vector[T], logger : Logger) -> Unit {
-  logger.write_string(self.to_string())
-}
-
-/// `length[X](self : Vector[X])`
+///| `length[X](self : Vector[X])`
 ///
 /// Get length of a vector
-fn length[X](self : Vector[X]) -> Int {
+fn[X] length(self : Vector[X]) -> Int {
   self.len
 }
 
-/// `capacity[X](self : Vector[X])`
+///| `capacity[X](self : Vector[X])`
 ///
 /// Get capacity of a vector
-fn capacity[X](self : Vector[X]) -> Int {
+fn[X] capacity(self : Vector[X]) -> Int {
   self.data.length()
 }
 
-/// `Vector::new_with_default[X](len : Int, default : X)`
+///| `Vector::new_with_default[X](len : Int, default : X)`
 ///
 /// Create a vector with length `len`, filling with value `default`
-fn Vector::new_with_default[X](len : Int, default : X) -> Vector[X] {
+fn[X] Vector::new_with_default(len : Int, default : X) -> Vector[X] {
   { data: Array::make(len, default), len }
 }
 
-/// Vector::new[X : Default](len : Int)
+///| Vector::new[X : Default](len : Int)
 ///
 /// Create a vector with length `len`, filling with default value of type `X`
-fn Vector::new[X : Default](len : Int) -> Vector[X] {
+fn[X : Default] Vector::new(len : Int) -> Vector[X] {
   Vector::new_with_default(len, X::default())
 }
 
-/// `op_get[X](self : Vector[X], i : Int)`
+///| `op_get[X](self : Vector[X], i : Int)`
 ///
 /// Get the ith element of vector
-fn op_get[X](self : Vector[X], i : Int) -> X? {
+fn[X] op_get(self : Vector[X], i : Int) -> X? {
   if i < self.len {
     Some(self.data[i])
   } else {
@@ -63,10 +62,10 @@ fn op_get[X](self : Vector[X], i : Int) -> X? {
   }
 }
 
-/// push_back_with_default[X](self : Vector[X], elem : X, default : X)
+///| push_back_with_default[X](self : Vector[X], elem : X, default : X)
 ///
 /// Push back `elem` to a vector, `default` will be used to fill the additional space
-fn push_back_with_default[X](self : Vector[X], elem : X, default : X) -> Unit {
+fn[X] push_back_with_default(self : Vector[X], elem : X, default : X) -> Unit {
   if self.len < self.capacity() {
     self.data[self.len] = elem
     self.len = self.len + 1
@@ -83,21 +82,19 @@ fn push_back_with_default[X](self : Vector[X], elem : X, default : X) -> Unit {
   }
 }
 
-/// push_back[X : Default](self : Vector[X], elem : X)
+///| push_back[X : Default](self : Vector[X], elem : X)
 ///
 /// Push back `elem` to a vector, default value of type `X` will be used to fill the additional space
-fn push_back[X : Default](self : Vector[X], elem : X) -> Unit {
+fn[X : Default] push_back(self : Vector[X], elem : X) -> Unit {
   self.push_back_with_default(elem, X::default())
 }
 
+///|
 struct T {
   x : Int
-} derive(Show)
+} derive(Show, Default)
 
-fn T::default() -> T {
-  { x: 0 }
-}
-
+///|
 fn main {
   let v1 : Vector[Int] = Vector::new(5)
   println(v1)
