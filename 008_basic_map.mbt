@@ -4,7 +4,7 @@ fn main {
   println(map1)
 
   // Access a value by key
-  println(map1["key1"])
+  println(map1.get("key1"))
 
   // You can also create a map by Map::of, from a list of key-value pairs
   let map2 = Map::of([("key1", 1), ("key2", 2), ("key3", 3)])
