@@ -181,7 +181,7 @@ type CompiledRegex State
 
 ///|
 pub fn CompiledRegex::matches(self : CompiledRegex, s : String) -> Bool {
-  self._.accepts(s, 0)
+  self.inner().accepts(s, 0)
 }
 
 ///|
@@ -194,13 +194,13 @@ pub fn CompiledRegex::dump(self : CompiledRegex) -> Unit {
         let id = counter
         states = Cons((s, id), states)
         counter = counter + 1
-        s.transitions.iter(fn { (_, s2) => collect_states(s2) })
+        s.transitions.iter(fn(entry) { let (_, s2) = entry; collect_states(s2) })
       }
       Some(_) => ()
     }
   }
 
-  collect_states(self._)
+  collect_states(self.inner())
   fn state_to_string(s : State) -> String {
     match List::assoc(states, s) {
       None => abort("impossible")
@@ -230,7 +230,7 @@ pub fn CompiledRegex::dump(self : CompiledRegex) -> Unit {
 
     output_transitions(None, transitions)
   })
-  println("initial state: #" + state_to_string(self._))
+  println("initial state: #" + state_to_string(self.inner()))
 }
 
 ///| compile a regular expression to a state machine
