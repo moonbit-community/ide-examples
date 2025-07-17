@@ -51,22 +51,22 @@ fn lexeme(self : Tokenizer) -> String {
 }
 
 ///|
-fn peek(self : Tokenizer) -> Token!TokenError {
+fn peek(self : Tokenizer) -> Token raise {
   if self.cursor == 0 {
-    self.cur_token = self.do_next!()
+    self.cur_token = self.do_next()
   }
   self.cur_token
 }
 
 ///|
-fn next(self : Tokenizer) -> Token!TokenError {
-  let tok = self.peek!()
-  self.cur_token = self.do_next!()
+fn next(self : Tokenizer) -> Token raise {
+  let tok = self.peek()
+  self.cur_token = self.do_next()
   tok
 }
 
 ///|
-type! TokenError {
+priv suberror TokenError {
   BadTokenError(String)
   InvalidCharacterError(String)
   UnexpectedEofError
@@ -74,14 +74,14 @@ type! TokenError {
 } derive(Show)
 
 ///|
-fn do_next(self : Tokenizer) -> Token!TokenError {
+fn do_next(self : Tokenizer) -> Token raise {
   self.token_start = self.cursor
   let c = match self.next_char() {
     None => return EOF
     Some(c) => c
   }
   match c {
-    ' ' | '\n' | '\t' => return self.do_next!()
+    ' ' | '\n' | '\t' => return self.do_next()
     '(' => return LPAREN
     ')' => return RPAREN
     '=' => return EQUAL
@@ -124,38 +124,38 @@ fn next_ident(self : Tokenizer) -> String {
 }
 
 ///|
-pub fn parse_whole_file(self : Tokenizer) -> Expr!TokenError {
-  let expr = self.parse_expr!()
-  self.expect_token!(EOF)
+pub fn parse_whole_file(self : Tokenizer) -> Expr raise {
+  let expr = self.parse_expr()
+  self.expect_token(EOF)
   expr
 }
 
 ///|
-fn parse_expr(self : Tokenizer) -> Expr!TokenError {
-  match self.peek!() {
+fn parse_expr(self : Tokenizer) -> Expr raise {
+  match self.peek() {
     EOF => raise UnexpectedEofError
     LET => {
-      let _ = self.next!()
-      let id = self.expect_ident!()
-      self.expect_token!(EQUAL)
-      let rhs = self.parse_expr!()
-      self.expect_token!(IN)
-      let body = self.parse_expr!()
+      let _ = self.next()
+      let id = self.expect_ident()
+      self.expect_token(EQUAL)
+      let rhs = self.parse_expr()
+      self.expect_token(IN)
+      let body = self.parse_expr()
       Let(id, rhs, body)
     }
     FUN => {
-      let _ = self.next!()
-      let param = self.expect_ident!()
-      self.expect_token!(ARROW)
-      let body = self.parse_expr!()
+      let _ = self.next()
+      let param = self.expect_ident()
+      self.expect_token(ARROW)
+      let body = self.parse_expr()
       Lam(param, body)
     }
     _ => {
-      let mut head = self.parse_simple_expr!()
+      let mut head = self.parse_simple_expr()
       while true {
-        match self.peek!() {
+        match self.peek() {
           LPAREN | IDENT(_) | CON(_) => {
-            let arg = self.parse_simple_expr!()
+            let arg = self.parse_simple_expr()
             head = App(head, arg)
           }
           _ => break
@@ -167,13 +167,13 @@ fn parse_expr(self : Tokenizer) -> Expr!TokenError {
 }
 
 ///|
-fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
-  match self.next!() {
+fn parse_simple_expr(self : Tokenizer) -> Expr raise {
+  match self.next() {
     IDENT(id) => Var(id)
     CON(con) => Con(con)
     LPAREN => {
-      let expr = self.parse_expr!()
-      self.expect_token!(RPAREN)
+      let expr = self.parse_expr()
+      self.expect_token(RPAREN)
       expr
     }
     token => {
@@ -186,8 +186,8 @@ fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
 }
 
 ///|
-fn expect_ident(self : Tokenizer) -> String!TokenError {
-  match self.next!() {
+fn expect_ident(self : Tokenizer) -> String raise {
+  match self.next() {
     IDENT(id) => id
     token => {
       let tok = token.to_string()
@@ -199,8 +199,8 @@ fn expect_ident(self : Tokenizer) -> String!TokenError {
 }
 
 ///|
-fn expect_token(self : Tokenizer, tok : Token) -> Unit!TokenError {
-  let next_tok = self.next!()
+fn expect_token(self : Tokenizer, tok : Token) -> Unit raise {
+  let next_tok = self.next()
   if next_tok == tok {
 
   } else {

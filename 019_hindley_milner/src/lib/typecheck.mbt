@@ -54,14 +54,14 @@ fn repr(self : Type) -> Type {
 }
 
 ///|
-type! TypeCheckError {
+priv suberror TypeCheckError {
   OccursError
   TypeMismatchError
   VariableNotFoundError(String)
 }
 
 ///|
-fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
+fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit raise {
   match self.repr() {
     T_Var({ val: Free(my_tag, my_lvl) } as tvar) =>
       if tag == my_tag {
@@ -71,15 +71,15 @@ fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
       }
     T_Var(_) => abort("impossible")
     T_Lam(t1, t2) | T_App(t1, t2) => {
-      t1.check_occurs!(tag, lvl)
-      t2.check_occurs!(tag, lvl)
+      t1.check_occurs(tag, lvl)
+      t2.check_occurs(tag, lvl)
     }
     T_Con(_) => ()
   }
 }
 
 ///|
-fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
+fn unify(t1 : Type, t2 : Type) -> Unit raise {
   match (t1.repr(), t2.repr()) {
     (T_Var({ val: Free(tag, lvl) } as tv), ty)
     | (ty, T_Var({ val: Free(tag, lvl) } as tv)) => {
@@ -87,17 +87,17 @@ fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
         T_Var({ val: Free(alt_tag, _) }) => if tag == alt_tag { return }
         _ => ()
       }
-      ty.check_occurs!(tag, lvl)
+      ty.check_occurs(tag, lvl)
       tv.val = Solved(ty)
     }
     (T_Lam(t11, t12), T_Lam(t21, t22)) => {
-      unify!(t11, t21)
-      unify!(t12, t22)
+      unify(t11, t21)
+      unify(t12, t22)
     }
     (T_Con(con1), T_Con(con2)) => if con1 != con2 { raise TypeMismatchError }
     (T_App(f1, a1), T_App(f2, a2)) => {
-      unify!(f1, f2)
-      unify!(a1, a2)
+      unify(f1, f2)
+      unify(a1, a2)
     }
     _ => raise TypeMismatchError
   }
@@ -142,7 +142,7 @@ fn instantiate(self : Type) -> Type {
 }
 
 ///|
-pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
+pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type raise {
   match expr {
     Var(name) =>
       match ctx.find(name) {
@@ -152,19 +152,19 @@ pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
     Con(con) => T_Con(con)
     Lam(param, body) => {
       let tparam = fresh(ctx.length())
-      let tret = infer!(Extend(param, tparam, ctx), body)
+      let tret = infer(Extend(param, tparam, ctx), body)
       T_Lam(tparam, tret)
     }
     App(func, arg) => {
-      let tfunc = infer!(ctx, func)
-      let targ = infer!(ctx, arg)
+      let tfunc = infer(ctx, func)
+      let targ = infer(ctx, arg)
       let tret = fresh(10000000)
-      unify!(tfunc, T_Lam(targ, tret))
+      unify(tfunc, T_Lam(targ, tret))
       tret.repr()
     }
     Let(name, rhs, body) => {
-      let trhs = infer!(ctx, rhs).generalize(ctx.length())
-      infer!(Extend(name, trhs, ctx), body)
+      let trhs = infer(ctx, rhs).generalize(ctx.length())
+      infer(Extend(name, trhs, ctx), body)
     }
   }
 }
