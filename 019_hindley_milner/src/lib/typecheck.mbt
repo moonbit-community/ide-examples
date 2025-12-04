@@ -42,7 +42,7 @@ pub fn fresh_generic() -> Type {
 }
 
 ///|
-fn repr(self : Type) -> Type {
+fn Type::repr(self : Type) -> Type {
   match self {
     T_Var({ val: Solved(ty) } as tvar) => {
       let ty = ty.repr()
@@ -54,14 +54,18 @@ fn repr(self : Type) -> Type {
 }
 
 ///|
-type! TypeCheckError {
+suberror TypeCheckError {
   OccursError
   TypeMismatchError
   VariableNotFoundError(String)
 }
 
 ///|
-fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
+fn Type::check_occurs(
+  self : Type,
+  tag : Int,
+  lvl : Int,
+) -> Unit raise TypeCheckError {
   match self.repr() {
     T_Var({ val: Free(my_tag, my_lvl) } as tvar) =>
       if tag == my_tag {
@@ -71,15 +75,15 @@ fn check_occurs(self : Type, tag : Int, lvl : Int) -> Unit!TypeCheckError {
       }
     T_Var(_) => abort("impossible")
     T_Lam(t1, t2) | T_App(t1, t2) => {
-      t1.check_occurs!(tag, lvl)
-      t2.check_occurs!(tag, lvl)
+      t1.check_occurs(tag, lvl)
+      t2.check_occurs(tag, lvl)
     }
     T_Con(_) => ()
   }
 }
 
 ///|
-fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
+fn unify(t1 : Type, t2 : Type) -> Unit raise TypeCheckError {
   match (t1.repr(), t2.repr()) {
     (T_Var({ val: Free(tag, lvl) } as tv), ty)
     | (ty, T_Var({ val: Free(tag, lvl) } as tv)) => {
@@ -87,24 +91,24 @@ fn unify(t1 : Type, t2 : Type) -> Unit!TypeCheckError {
         T_Var({ val: Free(alt_tag, _) }) => if tag == alt_tag { return }
         _ => ()
       }
-      ty.check_occurs!(tag, lvl)
+      ty.check_occurs(tag, lvl)
       tv.val = Solved(ty)
     }
     (T_Lam(t11, t12), T_Lam(t21, t22)) => {
-      unify!(t11, t21)
-      unify!(t12, t22)
+      unify(t11, t21)
+      unify(t12, t22)
     }
     (T_Con(con1), T_Con(con2)) => if con1 != con2 { raise TypeMismatchError }
     (T_App(f1, a1), T_App(f2, a2)) => {
-      unify!(f1, f2)
-      unify!(a1, a2)
+      unify(f1, f2)
+      unify(a1, a2)
     }
     _ => raise TypeMismatchError
   }
 }
 
 ///|
-pub fn generalize(self : Type, lvl : Int) -> Type {
+pub fn Type::generalize(self : Type, lvl : Int) -> Type {
   match self.repr() {
     T_Var({ val: Free(tag, my_lvl) } as tv) as ty => {
       if my_lvl >= lvl {
@@ -119,7 +123,7 @@ pub fn generalize(self : Type, lvl : Int) -> Type {
 }
 
 ///|
-fn instantiate(self : Type) -> Type {
+fn Type::instantiate(self : Type) -> Type {
   let mut subst = Map::Empty
   fn go(ty : Type) {
     match ty.repr() {
@@ -142,7 +146,7 @@ fn instantiate(self : Type) -> Type {
 }
 
 ///|
-pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
+pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type raise TypeCheckError {
   match expr {
     Var(name) =>
       match ctx.find(name) {
@@ -152,19 +156,19 @@ pub fn infer(ctx : Map[String, Type], expr : Expr) -> Type!TypeCheckError {
     Con(con) => T_Con(con)
     Lam(param, body) => {
       let tparam = fresh(ctx.length())
-      let tret = infer!(Extend(param, tparam, ctx), body)
+      let tret = infer(Extend(param, tparam, ctx), body)
       T_Lam(tparam, tret)
     }
     App(func, arg) => {
-      let tfunc = infer!(ctx, func)
-      let targ = infer!(ctx, arg)
+      let tfunc = infer(ctx, func)
+      let targ = infer(ctx, arg)
       let tret = fresh(10000000)
-      unify!(tfunc, T_Lam(targ, tret))
+      unify(tfunc, T_Lam(targ, tret))
       tret.repr()
     }
     Let(name, rhs, body) => {
-      let trhs = infer!(ctx, rhs).generalize(ctx.length())
-      infer!(Extend(name, trhs, ctx), body)
+      let trhs = infer(ctx, rhs).generalize(ctx.length())
+      infer(Extend(name, trhs, ctx), body)
     }
   }
 }
@@ -176,7 +180,7 @@ enum Map[K, V] {
 }
 
 ///|
-fn[K : Eq, V] find(self : Map[K, V], key : K) -> V? {
+fn[K : Eq, V] Map::find(self : Map[K, V], key : K) -> V? {
   match self {
     Empty => None
     Extend(my_key, my_value, rest) =>
@@ -189,7 +193,7 @@ fn[K : Eq, V] find(self : Map[K, V], key : K) -> V? {
 }
 
 ///|
-fn[K, V] length(self : Map[K, V]) -> Int {
+fn[K, V] Map::length(self : Map[K, V]) -> Int {
   match self {
     Empty => 0
     Extend(_, _, rest) => rest.length() + 1
@@ -208,7 +212,7 @@ pub fn[K, V] Map::of_array(xs : Array[(K, V)]) -> Map[K, V] {
 
 ///|
 /// pretty printer for type
-pub fn pretty(self : Type) -> Unit {
+pub fn Type::pretty(self : Type) -> Unit {
   let mut subst : Map[Int, String] = Empty
   let buf = @buffer.new(size_hint=100)
   fn show_var(tag : Int) -> String {
@@ -216,7 +220,8 @@ pub fn pretty(self : Type) -> Unit {
       Some(name) => name
       None => {
         let name = "abcdefghijklmnopqrstuvwxyz"
-          .char_at(subst.length())
+          .get_char(subst.length())
+          .unwrap()
           .to_string()
         subst = Extend(tag, name, subst)
         name
