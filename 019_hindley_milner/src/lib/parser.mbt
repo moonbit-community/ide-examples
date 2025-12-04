@@ -28,15 +28,15 @@ pub fn Tokenizer::make(src : String) -> Tokenizer {
 }
 
 ///|
-fn peek_char(self : Tokenizer) -> Char? {
+fn Tokenizer::peek_char(self : Tokenizer) -> Char? {
   if self.cursor >= self.src.length() {
     return None
   }
-  Some(self.src.char_at(self.cursor))
+  self.src.get_char(self.cursor)
 }
 
 ///|
-fn next_char(self : Tokenizer) -> Char? {
+fn Tokenizer::next_char(self : Tokenizer) -> Char? {
   let c = self.peek_char()
   match c {
     Some(_) => self.cursor = self.cursor + 1
@@ -46,27 +46,27 @@ fn next_char(self : Tokenizer) -> Char? {
 }
 
 ///|
-fn lexeme(self : Tokenizer) -> String {
-  self.src.substring(start=self.token_start, end=self.cursor)
+fn Tokenizer::lexeme(self : Tokenizer) -> String {
+  try! self.src[self.token_start:self.cursor].to_string()
 }
 
 ///|
-fn peek(self : Tokenizer) -> Token!TokenError {
+fn Tokenizer::peek(self : Tokenizer) -> Token raise TokenError {
   if self.cursor == 0 {
-    self.cur_token = self.do_next!()
+    self.cur_token = self.do_next()
   }
   self.cur_token
 }
 
 ///|
-fn next(self : Tokenizer) -> Token!TokenError {
-  let tok = self.peek!()
-  self.cur_token = self.do_next!()
+fn Tokenizer::next(self : Tokenizer) -> Token raise TokenError {
+  let tok = self.peek()
+  self.cur_token = self.do_next()
   tok
 }
 
 ///|
-type! TokenError {
+suberror TokenError {
   BadTokenError(String)
   InvalidCharacterError(String)
   UnexpectedEofError
@@ -74,14 +74,14 @@ type! TokenError {
 } derive(Show)
 
 ///|
-fn do_next(self : Tokenizer) -> Token!TokenError {
+fn Tokenizer::do_next(self : Tokenizer) -> Token raise TokenError {
   self.token_start = self.cursor
   let c = match self.next_char() {
     None => return EOF
     Some(c) => c
   }
   match c {
-    ' ' | '\n' | '\t' => return self.do_next!()
+    ' ' | '\n' | '\t' => return self.do_next()
     '(' => return LPAREN
     ')' => return RPAREN
     '=' => return EQUAL
@@ -107,7 +107,7 @@ fn do_next(self : Tokenizer) -> Token!TokenError {
 }
 
 ///|
-fn next_ident(self : Tokenizer) -> String {
+fn Tokenizer::next_ident(self : Tokenizer) -> String {
   match self.peek_char() {
     None => self.lexeme()
     Some(c) =>
@@ -124,38 +124,38 @@ fn next_ident(self : Tokenizer) -> String {
 }
 
 ///|
-pub fn parse_whole_file(self : Tokenizer) -> Expr!TokenError {
-  let expr = self.parse_expr!()
-  self.expect_token!(EOF)
+pub fn Tokenizer::parse_whole_file(self : Tokenizer) -> Expr raise TokenError {
+  let expr = self.parse_expr()
+  self.expect_token(EOF)
   expr
 }
 
 ///|
-fn parse_expr(self : Tokenizer) -> Expr!TokenError {
-  match self.peek!() {
+fn Tokenizer::parse_expr(self : Tokenizer) -> Expr raise TokenError {
+  match self.peek() {
     EOF => raise UnexpectedEofError
     LET => {
-      let _ = self.next!()
-      let id = self.expect_ident!()
-      self.expect_token!(EQUAL)
-      let rhs = self.parse_expr!()
-      self.expect_token!(IN)
-      let body = self.parse_expr!()
+      let _ = self.next()
+      let id = self.expect_ident()
+      self.expect_token(EQUAL)
+      let rhs = self.parse_expr()
+      self.expect_token(IN)
+      let body = self.parse_expr()
       Let(id, rhs, body)
     }
     FUN => {
-      let _ = self.next!()
-      let param = self.expect_ident!()
-      self.expect_token!(ARROW)
-      let body = self.parse_expr!()
+      let _ = self.next()
+      let param = self.expect_ident()
+      self.expect_token(ARROW)
+      let body = self.parse_expr()
       Lam(param, body)
     }
     _ => {
-      let mut head = self.parse_simple_expr!()
+      let mut head = self.parse_simple_expr()
       while true {
-        match self.peek!() {
+        match self.peek() {
           LPAREN | IDENT(_) | CON(_) => {
-            let arg = self.parse_simple_expr!()
+            let arg = self.parse_simple_expr()
             head = App(head, arg)
           }
           _ => break
@@ -167,13 +167,13 @@ fn parse_expr(self : Tokenizer) -> Expr!TokenError {
 }
 
 ///|
-fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
-  match self.next!() {
+fn Tokenizer::parse_simple_expr(self : Tokenizer) -> Expr raise TokenError {
+  match self.next() {
     IDENT(id) => Var(id)
     CON(con) => Con(con)
     LPAREN => {
-      let expr = self.parse_expr!()
-      self.expect_token!(RPAREN)
+      let expr = self.parse_expr()
+      self.expect_token(RPAREN)
       expr
     }
     token => {
@@ -186,8 +186,8 @@ fn parse_simple_expr(self : Tokenizer) -> Expr!TokenError {
 }
 
 ///|
-fn expect_ident(self : Tokenizer) -> String!TokenError {
-  match self.next!() {
+fn Tokenizer::expect_ident(self : Tokenizer) -> String raise TokenError {
+  match self.next() {
     IDENT(id) => id
     token => {
       let tok = token.to_string()
@@ -199,8 +199,11 @@ fn expect_ident(self : Tokenizer) -> String!TokenError {
 }
 
 ///|
-fn expect_token(self : Tokenizer, tok : Token) -> Unit!TokenError {
-  let next_tok = self.next!()
+fn Tokenizer::expect_token(
+  self : Tokenizer,
+  tok : Token,
+) -> Unit raise TokenError {
+  let next_tok = self.next()
   if next_tok == tok {
 
   } else {

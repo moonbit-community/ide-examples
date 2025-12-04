@@ -12,51 +12,56 @@
 ///|
 fn main {
   run(
-    #| let id = fun x -> x in
-    #| id id
-    ,
+    (
+      #| let id = fun x -> x in
+      #| id id
+    ),
   )
   run(
-    #| let apply = fun f -> fun x -> f x in
-    #| apply
-    ,
+    (
+      #| let apply = fun f -> fun x -> f x in
+      #| apply
+    ),
   )
   run(
-    #| let apply = fun f -> fun x -> f x in
-    #| let id = fun x -> x in
-    #| (id apply) id apply Int
-    ,
+    (
+      #| let apply = fun f -> fun x -> f x in
+      #| let id = fun x -> x in
+      #| (id apply) id apply Int
+    ),
   )
   run(
-    #| fun f ->
-    #|   let x = f Int in
-    #|   f Bool
-    ,
+    (
+      #| fun f ->
+      #|   let x = f Int in
+      #|   f Bool
+    ),
   )
   run("cons Int (cons Int nil)")
   run(
-    #| let map = fun f -> fun lst ->
-    #|   fold (fun x -> fun l -> cons (f x) l) lst nil
-    #| in
-    #| let xs = map (fun x -> cons x nil) (cons Int (cons Int nil)) in
-    #| map (fun l -> map (fun x -> Bool) l) xs
-    ,
+    (
+      #| let map = fun f -> fun lst ->
+      #|   fold (fun x -> fun l -> cons (f x) l) lst nil
+      #| in
+      #| let xs = map (fun x -> cons x nil) (cons Int (cons Int nil)) in
+      #| map (fun l -> map (fun x -> Bool) l) xs
+    ),
   )
   run("fun x -> x x")
 }
 
 ///|
 fn run(src : String) -> Unit {
-  try parse_and_check!(src).pretty() catch {
+  parse_and_check(src).pretty() catch {
     err => println(err)
   }
 }
 
 ///|
-fn parse_and_check(src : String) -> @lib.Type!Error {
+fn parse_and_check(src : String) -> @lib.Type raise Error {
   let t = @lib.Tokenizer::make(src)
-  let expr = t.parse_whole_file!()
-  @lib.infer!(prelude, expr).generalize(0)
+  let expr = t.parse_whole_file()
+  @lib.infer(prelude, expr).generalize(0)
 }
 
 ///|
