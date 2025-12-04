@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "hindley_milner/lib"
+
+// Values
+pub fn fresh_generic() -> Type
+
+pub fn infer(Map[String, Type], Expr) -> Type raise TypeCheckError
+
+// Errors
+type TokenError
+pub impl Show for TokenError
+
+type TypeCheckError
+
+// Types and methods
+type Expr
+pub impl Show for Expr
+
+type Map[K, V]
+pub fn[K, V] Map::of_array(Array[(K, V)]) -> Self[K, V]
+
+type Tokenizer
+pub fn Tokenizer::make(String) -> Self
+pub fn Tokenizer::parse_whole_file(Self) -> Expr raise TokenError
+
+type Tvar
+pub impl Show for Tvar
+
+pub(all) enum Type {
+  T_Var(Ref[Tvar])
+  T_Lam(Type, Type)
+  T_Con(String)
+  T_App(Type, Type)
+}
+pub fn Type::generalize(Self, Int) -> Self
+pub fn Type::pretty(Self) -> Unit
+pub impl Show for Type
+
+// Type aliases
+
+// Traits
+
