@@ -24,6 +24,10 @@ fn destructing(
   guard tuple is (a, b, c)
   guard array is [d, e, f]
   guard record is {x, y}
+  // Use the variables to fix unused warnings
+  println("Tuple: \{a}, \{b}, \{c}")
+  println("Array: \{d}, \{e}, \{f}")
+  println("Point: \{x}, \{y}")
 }
 
 
@@ -70,9 +74,9 @@ fn basic_pattern_match(num : Int, color : Color) -> Unit {
   guard array is [.., f, g]
   guard array is [h, .., i]
   
-  println("first two element of array: \{array[d]}, \{array[e]}")
-  println("last two element of array: \{array[f]}, \{array[g]}")
-  println("first and last element of array: \{array[h]}, \{array[i]}")
+  println("first two element of array: \{d}, \{e}")
+  println("last two element of array: \{f}, \{g}")
+  println("first and last element of array: \{h}, \{i}")
 
   // 4. more struct pattern
   // Use ".." in struct pattern to match the rest of the fields.
@@ -86,7 +90,10 @@ fn basic_pattern_match(num : Int, color : Color) -> Unit {
   // You already know that `let x = 10` means create a variable x with initail value of 10.
   // The "x" is also a pattern, which means match any value and bind it to x.
   let x = 10
-
+  println("x is: \{x}") // Use x to fix unused warning
+  
+  // Use color to fix unused warning
+  println("Color: \{color}")
 }
 
 ///| Patterns can be nested, give an alias, or use "|" to write multiple alternative patterns.
@@ -129,6 +136,9 @@ fn complex_pattern_match(
     RGB(r, g, b) | RGBA(r, g, b, _) =>
       println("red, green and blue: \{r}, \{g}, \{b}")
   }
+  
+  // Use num to fix unused warning
+  println("Number: \{num}")
 }
 
 ///| More pattern matching: map pattern
@@ -142,4 +152,29 @@ fn map_pattern(map : Map[String, Point]) -> Unit {
     }
     _ => println("Parsing Error")
   }
+}
+
+///| Main function to demonstrate all the pattern matching features
+fn main {
+  // Use all the functions to fix unused warnings
+  destructing((42, true, 3.14), [1, 2, 3], {x: 10, y: 20})
+  
+  let red = Red
+  let green = Green  
+  let blue = Blue
+  let rgb_color = RGB(255, 128, 0)
+  let rgba_color = RGBA(255, 0, 0, 128)
+  
+  use_pattern_in_let_and_match(red)
+  use_pattern_in_let_and_match(green)
+  use_pattern_in_let_and_match(blue)
+  use_pattern_in_let_and_match(rgb_color)
+  use_pattern_in_let_and_match(rgba_color)
+  
+  basic_pattern_match(5, red)
+  
+  complex_pattern_match(10, [red, green, blue], rgb_color, rgba_color)
+  
+  let sample_map : Map[String, Point] = { "guest": {x: 5, y: 10}, "alice": {x: 1, y: 2}, "bob": {x: 3, y: 4} }
+  map_pattern(sample_map)
 }
