@@ -4,6 +4,8 @@
 // You have `num_bottles` bottles of water at the beginning.  
 // How many bottles of water can you drink at most?
 // 你最初拥有`num_bottles`瓶水，最多能喝几瓶水？
+
+///|
 fn num_water_bottles(num_bottles : Int, num_exchange : Int) -> Int {
   fn consume(num_bottles, num_drunk) {
     if num_bottles >= num_exchange {
@@ -20,13 +22,9 @@ fn num_water_bottles(num_bottles : Int, num_exchange : Int) -> Int {
 
 // We recommend the test driven development
 // 我们推荐测试驱动的开发
-test "Expected behavior of num_water_bottles" {
-  assert(num_water_bottles(9, 3) == 13)
-  assert(num_water_bottles(15, 4) == 19)
-}
 
-fn assert(test1 : Bool) -> Unit {
-  if test1.not() {
-    abort("Test failed")
-  }
+///|
+test "Expected behavior of num_water_bottles" {
+  assert_eq(num_water_bottles(9, 3), 13)
+  assert_eq(num_water_bottles(15, 4), 19)
 }
