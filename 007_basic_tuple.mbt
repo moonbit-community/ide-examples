@@ -1,9 +1,9 @@
-
 fn main {
   // Tuple is a collection of values of different types.
   let tuple = (3.14, false, [1,2,3])  
   let tuple2 : (Float, Bool, Int) = (2.1, true, 20)
   println(tuple)
+  println(tuple2) // Use tuple2 to fix warning
 
   // Accessing tuple elements
   println(tuple.0)
