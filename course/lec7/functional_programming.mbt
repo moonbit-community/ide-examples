@@ -32,9 +32,9 @@ struct Ref[T] {
 }
 
 fn init {
-  let ref : Ref[Int] = { val: 1 } // ref is just a binding ref 本身只是一个数据绑定
-  ref.val = 10 // the field of the struct can be modified 我们可以修改结构体的字段
-  println(ref.val.to_string()) // output 10 输出 10
+  let ref_ : Ref[Int] = { val: 1 } // ref is just a binding ref 本身只是一个数据绑定
+  ref_.val = 10 // the field of the struct can be modified 我们可以修改结构体的字段
+  println(ref_.val.to_string()) // output 10 输出 10
 }
 
 fn init {
