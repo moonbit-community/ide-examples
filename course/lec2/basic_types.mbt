@@ -1,10 +1,15 @@
+///|
 let x : Int = 10
 
+///|
 let a : Double = 3.14
 
+///|
 let s : String = "Hello"
 
 // the following code compiles 下方的代码可以编译
+
+///|
 let 通过编译 : Int = x + (a + 0.2).to_int()
 
 // code on line 10 does not compile, uncomment (remove the `//`) to see error 
@@ -14,6 +19,8 @@ let 通过编译 : Int = x + (a + 0.2).to_int()
 // The following codes are tested with assertions.
 // If the assertion is failed, the program will fail
 // 下方代码利用断言判断。如果断言未满足，程序将失败
+
+///|
 test {
   // logical and 逻辑与
   assert_false_断言为假(true && false)
@@ -37,32 +44,36 @@ test {
 
   // convert char to/from charcode 字符与编码转换
   assert_equals_断言相等(65, 'A'.to_int())
-  assert_equals_断言相等('A', Char::from_int(65))
+  assert_equals_断言相等('A', Int::unsafe_to_char(65))
 
   // accessing tuple 多元组访问
   assert_equals_断言相等(2023, (2023, 10, 24).0)
   assert_equals_断言相等(3, ("Bob", 3).1)
 }
 
+///|
 fn assert_true_断言为真(b : Bool) -> Unit {
-  if b.not() {
+  if !b {
     abort("")
   }
 }
 
+///|
 fn assert_false_断言为假(b : Bool) -> Unit {
   if b {
     abort("")
   }
 }
 
-fn assert_equals_断言相等[T : Eq](expected : T, actual : T) -> Unit {
-  if (expected == actual).not() {
+///|
+fn[T : Eq] assert_equals_断言相等(expected : T, actual : T) -> Unit {
+  if expected != actual {
     abort("")
   }
 }
 
-fn assert_not_equals_断言不相等[T : Eq](expected : T, actual : T) -> Unit {
+///|
+fn[T : Eq] assert_not_equals_断言不相等(expected : T, actual : T) -> Unit {
   if expected == actual {
     abort("")
   }

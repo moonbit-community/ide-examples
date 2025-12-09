@@ -1,8 +1,13 @@
+///|
+using @list {type List}
+
+///|
 enum IntTree {
   Empty
   Node(Int, IntTree, IntTree)
 }
 
+///|
 fn dfs_search(target : Int, tree : IntTree) -> Bool {
   match tree {
     Empty => false
@@ -11,6 +16,7 @@ fn dfs_search(target : Int, tree : IntTree) -> Bool {
   }
 }
 
+///|
 fn bfs_search(target : Int, queue : Queue[IntTree]) -> Bool {
   match pop(queue) {
     // if the queue is empty, abort search 若队列为空，结束搜索
@@ -32,6 +38,7 @@ fn bfs_search(target : Int, queue : Queue[IntTree]) -> Bool {
   }
 }
 
+///|
 fn dfs_print(tree : IntTree) -> String {
   match tree {
     Empty => ""
@@ -45,6 +52,7 @@ fn dfs_print(tree : IntTree) -> String {
   }
 }
 
+///|
 fn bfs_print(queue : Queue[IntTree]) -> String {
   match pop(queue) {
     (None, _) => ""
@@ -59,6 +67,7 @@ fn bfs_print(queue : Queue[IntTree]) -> String {
   }
 }
 
+///|
 fn construct(array : Array[Int?]) -> IntTree {
   fn aux(n : Int) -> IntTree {
     if n >= array.length() {
@@ -74,102 +83,112 @@ fn construct(array : Array[Int?]) -> IntTree {
   aux(0)
 }
 
+///|
 fn init {
-  let tree = construct(
-    [
-      Some(0),
-      Some(1),
-      Some(2),
-      Some(3),
-      Some(4),
-      None,
-      None,
-      None,
-      None,
-      None,
-      Some(5),
-    ],
-  )
+  let tree = construct([
+    Some(0),
+    Some(1),
+    Some(2),
+    Some(3),
+    Some(4),
+    None,
+    None,
+    None,
+    None,
+    None,
+    Some(5),
+  ])
   println("dfs_print: " + dfs_print(tree))
-  println("bfs_print: " + bfs_print(from_list(Cons(tree, Nil))))
-  if dfs_search(3, tree).not() {
+  println(
+    "bfs_print: " + bfs_print(Queue::from_list(@list.cons(tree, @list.empty()))),
+  )
+  if !dfs_search(3, tree) {
     abort("")
   }
-  if bfs_search(3, enqueue(from_list(Nil), tree)).not() {
+  if !bfs_search(3, enqueue(Queue::from_list(@list.empty()), tree)) {
     abort("")
   }
 }
 
 // ----- Queue -----
 
+///|
 struct Queue[T] {
-  front : @immut/list.T[T]
-  back : @immut/list.T[T]
+  front : List[T]
+  back : List[T]
 }
 
+///|
 /// `Queue::default[T]()`
 ///
 /// Create an empty queue 创建空队列
-fn Queue::default[T]() -> Queue[T] {
-  { front: Nil, back: Nil }
+fn[T] Queue::default() -> Queue[T] {
+  { front: @list.empty(), back: @list.empty() }
 }
 
+///|
 /// `from_list[T](front: @immut/list.T[T])`
 ///
 /// Create queue from a list 从列表创建队列
-fn Queue::from_list[T](front : @immut/list.T[T]) -> Queue[T] {
-  { front, back: Nil }
+fn[T] Queue::from_list(front : List[T]) -> Queue[T] {
+  { front, back: @list.empty() }
 }
 
+///|
 /// `is_empty[T](q: Queue[T])`
 ///
 /// Check if a queue is empty 检查列表是否为空
-fn Queue::is_empty[T](q : Queue[T]) -> Bool {
+fn[T] Queue::is_empty(q : Queue[T]) -> Bool {
   match q {
-    { front: Nil, back: Nil } => true
+    { front: Empty, back: Empty } => true
     _ => false
   }
 }
 
+///|
 /// `list_rev[T](xs: @immut/list.T[T])`
 ///
 /// Reverse a list with tail recursion 基于尾递归的列表反转
-fn list_rev[T](xs : @immut/list.T[T]) -> @immut/list.T[T] {
-  fn go(acc, xs : @immut/list.T[T]) {
+fn[T] list_rev(xs : List[T]) -> List[T] {
+  fn go(acc, xs : List[T]) {
     match xs {
-      Nil => acc
-      Cons(x, rest) => go((Cons(x, acc) : @immut/list.T[T]), rest)
+      Empty => acc
+      More(x, tail~) => go((@list.cons(x, acc) : List[T]), tail)
     }
   }
 
-  go(Nil, xs)
+  go(@list.empty(), xs)
 }
 
+///|
 /// `norm[T](q: Queue[T])`
 ///
 /// Feed `back` into `front` so that `front` always have something 反转队列结构；确保列表头始终有元素
-fn norm[T](q : Queue[T]) -> Queue[T] {
+fn[T] norm(q : Queue[T]) -> Queue[T] {
   match q {
-    { front: Nil, back: b } => { front: list_rev(b), back: Nil }
+    { front: Empty, back: b } => { front: list_rev(b), back: @list.empty() }
     q => q
   }
 }
 
+///|
 /// `enqueue[T](q: Queue[T], x: T)`
 ///
 /// Add an element to the end of the queue 向队尾添加一个元素
-fn enqueue[T](q : Queue[T], x : T) -> Queue[T] {
+fn[T] enqueue(q : Queue[T], x : T) -> Queue[T] {
   match q {
-    { front: f, back: b } => norm({ front: f, back: Cons(x, b) })
+    { front: f, back: b } => norm({ front: f, back: @list.cons(x, b) })
   }
 }
 
+///|
 /// `pop[T](q: Queue[T])`
 ///
 /// Remove the first element from the queue 取出队列中第一个元素
-fn pop[T](q : Queue[T]) -> (T?, Queue[T]) {
+fn[T] pop(q : Queue[T]) -> (T?, Queue[T]) {
   match q {
-    { front: Nil, back: _ } => (None, q)
-    { front: Cons(x, f), back: b } => (Some(x), norm({ front: f, back: b }))
+    { front: Empty, back: _ } => (None, q)
+    { front: More(x, tail=f), back: b } =>
+      (Some(x), norm({ front: f, back: b }))
   }
 }

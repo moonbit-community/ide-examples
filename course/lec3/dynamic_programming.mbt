@@ -1,8 +1,10 @@
 // Top-down 自顶向下
 // Fibonacci using map 利用表计算斐波那契数列
+
+///|
 fn fib1(num : Int) -> Int64 {
   fn aux(num : Int, map : AVLMap[Int, Int64]) -> (Int64, AVLMap[Int, Int64]) {
-    match get(map, num) {
+    match AVLMap::get(map, num) {
       Some(result) => (result, map)
       None => {
         let (result_1, map_1) = aux(num - 1, map)
@@ -18,10 +20,12 @@ fn fib1(num : Int) -> Int64 {
 
 // Use mutable variable to avoid passing map around
 // 利用变量避免传递map
+
+///|
 fn fib1_mut(num : Int) -> Int64 {
   let mut map = put(put(make(num), 1, 1L), 2, 1L)
   fn aux(num : Int) -> Int64 {
-    match get(map, num) {
+    match AVLMap::get(map, num) {
       Some(result) => result
       None => {
         let result_1 = aux(num - 1)
@@ -36,10 +40,12 @@ fn fib1_mut(num : Int) -> Int64 {
 }
 
 // Bottom-up 自底向上
+
+///|
 fn fib2(num : Int) -> Int64 {
   fn aux(n : Int, map : AVLMap[Int, Int64]) -> Int64 {
-    let result = get_or_else(get(map, n - 1), 1L) +
-      get_or_else(get(map, n - 2), 1L)
+    let result = get_or_else(AVLMap::get(map, n - 1), 1L) +
+      get_or_else(AVLMap::get(map, n - 2), 1L)
     if n == num {
       result
     } else {
@@ -51,28 +57,25 @@ fn fib2(num : Int) -> Int64 {
   aux(1, map)
 }
 
-fn init {
-  // println(fib1(60))
-  println(fib1_mut(60))
-  // println(fib2(60))
-}
-
-fn get_or_else(option_int : Int64?, default : Int64) -> Int64 {
+///|
+fn[A] get_or_else(option_int : A?, default : A) -> A {
   match option_int {
     None => default
     Some(value) => value
   }
 }
 
+///|
 fn put(
   map : AVLMap[Int, Int64],
   num : Int,
-  result : Int64
+  result : Int64,
 ) -> AVLMap[Int, Int64] {
   map.add(num, result)
 }
 
-fn get(map : AVLMap[Int, Int64], num : Int) -> Int64? {
+///|
+fn AVLMap::get(map : AVLMap[Int, Int64], num : Int) -> Int64? {
   match map {
     Empty => None
     Node(l, k, v, r, _) => {
@@ -81,13 +84,14 @@ fn get(map : AVLMap[Int, Int64], num : Int) -> Int64? {
       if c == 0 {
         Some(v)
       } else {
-        get(tree, num)
+        AVLMap::get(tree, num)
       }
     }
   }
 }
 
-fn make(num : Int) -> AVLMap[Int, Int64] {
+///|
+fn make(_num : Int) -> AVLMap[Int, Int64] {
   AVLMap::Empty
 }
 
@@ -97,36 +101,41 @@ fn make(num : Int) -> AVLMap[Int, Int64] {
 
 // Empty represents an empty node in the AVL tree
 // Node represents a node in the AVL tree with left child, value, right child, and height
+
+///|
 enum AVLMap[Key, Value] {
   Empty
   Node(AVLMap[Key, Value], Key, Value, AVLMap[Key, Value], Int)
 }
 
+///|
 /// `height[Key, Value](self: AVLMap[Key, Value])`
 ///
 /// Calculate the height of a tree-like structure.
-fn height[Key, Value](self : AVLMap[Key, Value]) -> Int {
+fn[Key, Value] AVLMap::height(self : AVLMap[Key, Value]) -> Int {
   match self {
     Empty => 0
     Node(_, _, _, _, h) => h
   }
 }
 
+///|
 /// `create[Key, Value](l: AVLMap[Key, Value], key: Key, value: Value, r: AVLMap[Key, Value])`
 ///
 /// Create a new node with the given left and right subtrees, along with a key of type `Key` 
 /// and a value of type `Value`.
-fn create[Key, Value](
+fn[Key, Value] create(
   l : AVLMap[Key, Value],
   key : Key,
   value : Value,
-  r : AVLMap[Key, Value]
+  r : AVLMap[Key, Value],
 ) -> AVLMap[Key, Value] {
   let hl = l.height()
   let hr = r.height()
   Node(l, key, value, r, if hl >= hr { hl + 1 } else { hr + 1 })
 }
 
+///|
 /// `bal[Key, Value](l: AVLMap[Key, Value], key: Key, value: Value, r: AVLMap[Key, Value])`
 ///
 /// Perform balancing operation on a avl tree node.
@@ -134,11 +143,11 @@ fn create[Key, Value](
 /// This function performs a balancing operation on a avl tree node based on the heights
 /// of its left and right subtrees. It ensures that the heights of the subtrees are balanced
 /// and returns a new avl tree node with appropriate restructuring if necessary.
-fn bal[Key, Value](
+fn[Key, Value] bal(
   l : AVLMap[Key, Value],
   key : Key,
   value : Value,
-  r : AVLMap[Key, Value]
+  r : AVLMap[Key, Value],
 ) -> AVLMap[Key, Value] {
   let hl = l.height()
   let hr = r.height()
@@ -188,13 +197,14 @@ fn bal[Key, Value](
   }
 }
 
+///|
 /// `add[Key:Compare, Value](self: AVLMap[Key, Value], key: Key, value: Value)`
 ///
 /// Add an entry to a tree-like structure.
-fn add[Key : Compare, Value](
+fn[Key : Compare, Value] AVLMap::add(
   self : AVLMap[Key, Value],
   key : Key,
-  value : Value
+  value : Value,
 ) -> AVLMap[Key, Value] {
   match self {
     Empty => Node(Empty, key, value, Empty, 1)
@@ -211,25 +221,30 @@ fn add[Key : Compare, Value](
   }
 }
 
+///|
 /// `min_elt[Key, Value](self: AVLMap[Key, Value], default: Value)`
 ///
 /// Find the minimum entry in a tree-like data structure.
-fn min_elt[Key, Value](self : AVLMap[Key, Value], default : Value) -> Value {
+fn[Key, Value] AVLMap::min_elt(
+  self : AVLMap[Key, Value],
+  default : Value,
+) -> Value {
   match self {
     Empty => default
-    Node(Empty, k, v, _, _) => v
-    Node(l, k, v, _, _) => l.min_elt(v)
+    Node(Empty, _k, v, _, _) => v
+    Node(l, _k, v, _, _) => l.min_elt(v)
   }
 }
 
+///|
 /// `remove_min_elt[Key, Value](l: AVLMap[Key, Value], key: Key, value: Value, r: AVLMap[Key, Value])`
 ///
 /// Remove the minimum element from a avl tree and rebalance the tree.
-fn remove_min_elt[Key, Value](
+fn[Key, Value] remove_min_elt(
   l : AVLMap[Key, Value],
   key : Key,
   value : Value,
-  r : AVLMap[Key, Value]
+  r : AVLMap[Key, Value],
 ) -> AVLMap[Key, Value] {
   match l {
     Empty => r
@@ -238,12 +253,13 @@ fn remove_min_elt[Key, Value](
   }
 }
 
+///|
 /// `internal_merge[Key, Value](self: AVLMap[Key, Value], other: AVLMap[Key, Value])`
 ///
 /// Merge two AVL trees of the same user-defined type `U` into a new AVL tree.
-fn internal_merge[Key, Value](
+fn[Key, Value] AVLMap::internal_merge(
   self : AVLMap[Key, Value],
-  other : AVLMap[Key, Value]
+  other : AVLMap[Key, Value],
 ) -> AVLMap[Key, Value] {
   match (self, other) {
     (Empty, t) => t
@@ -253,12 +269,13 @@ fn internal_merge[Key, Value](
   }
 }
 
+///|
 /// `remove[Key:Compare, Value](self: AVLMap[Key, Value], x: Key)`
 ///
 /// Removes a value from the AVL tree while maintaining balance
-fn remove[Key : Compare, Value](
+fn[Key : Compare, Value] AVLMap::remove(
   self : AVLMap[Key, Value],
-  x : Key
+  x : Key,
 ) -> AVLMap[Key, Value] {
   match self {
     Empty => Empty
@@ -275,10 +292,13 @@ fn remove[Key : Compare, Value](
   }
 }
 
+///|
 /// `to_string[Key : Show, Value : Show](self : AVLMap[Key, Value])`
 ///
 /// convert the AVL tree to string.
-pub fn to_string[Key : Show, Value : Show](self : AVLMap[Key, Value]) -> String {
+pub impl[Key : Show, Value : Show] Show for AVLMap[Key, Value] with to_string(
+  self,
+) {
   match self {
     Empty => "()"
     Node(Empty, k, v, Empty, _) => "\{k}->\{v}"
@@ -286,13 +306,25 @@ pub fn to_string[Key : Show, Value : Show](self : AVLMap[Key, Value]) -> String 
   }
 }
 
+///|
+pub impl[Key : Show, Value : Show] Show for AVLMap[Key, Value] with output(
+  self,
+  logger,
+) {
+  logger.write_string(self.to_string())
+}
+
+///|
 /// `mem[Key:Compare, Value](self: AVLMap[Key, Value], x: Key)`
 ///
 /// Check if a given element exists in an AVL tree.
-fn mem[Key : Compare, Value](self : AVLMap[Key, Value], x : Key) -> Bool {
+fn[Key : Compare, Value] AVLMap::mem(
+  self : AVLMap[Key, Value],
+  x : Key,
+) -> Bool {
   match self {
     Empty => false
-    Node(l, k, v, r, _) => {
+    Node(l, k, _v, r, _) => {
       let c = x.compare(k)
       let tree = if c < 0 { l } else { r }
       c == 0 || tree.mem(x)

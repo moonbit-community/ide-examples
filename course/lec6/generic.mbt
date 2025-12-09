@@ -1,3 +1,4 @@
+///|
 fn init {
   let empty : Stack[Int] = Stack::empty()
   println("empty is Empty: \{empty}")
@@ -22,94 +23,112 @@ fn init {
   println("rest should contain 2 in front: \{rest}")
 }
 
+///|
 enum IntStack {
   Empty
   NonEmpty(Int, IntStack)
 } derive(Show, Eq)
 
+///|
 fn IntStack::empty() -> IntStack {
   Empty
 }
 
-fn push(self : IntStack, value : Int) -> IntStack {
+///|
+fn IntStack::push(self : IntStack, value : Int) -> IntStack {
   NonEmpty(value, self)
 }
 
-fn pop(self : IntStack) -> (Int?, IntStack) {
+///|
+fn IntStack::pop(self : IntStack) -> (Int?, IntStack) {
   match self {
     Empty => (None, Empty)
     NonEmpty(top, rest) => (Some(top), rest)
   }
 }
 
+///|
 enum StringStack {
   Empty
   NonEmpty(String, StringStack)
 } derive(Show, Eq)
 
+///|
 fn StringStack::empty() -> StringStack {
   Empty
 }
 
-fn push(self : StringStack, value : String) -> StringStack {
+///|
+fn StringStack::push(self : StringStack, value : String) -> StringStack {
   NonEmpty(value, self)
 }
 
-fn pop(self : StringStack) -> (String?, StringStack) {
+///|
+fn StringStack::pop(self : StringStack) -> (String?, StringStack) {
   match self {
     Empty => (None, Empty)
     NonEmpty(top, rest) => (Some(top), rest)
   }
 }
 
+///|
 enum Stack[T] {
   Empty
   NonEmpty(T, Stack[T])
 } derive(Show, Eq)
 
-fn Stack::empty[T]() -> Stack[T] {
+///|
+fn[T] Stack::empty() -> Stack[T] {
   Empty
 }
 
-fn push[T](self : Stack[T], value : T) -> Stack[T] {
+///|
+fn[T] Stack::push(self : Stack[T], value : T) -> Stack[T] {
   NonEmpty(value, self)
 }
 
-fn pop[T](self : Stack[T]) -> (T?, Stack[T]) {
+///|
+fn[T] Stack::pop(self : Stack[T]) -> (T?, Stack[T]) {
   match self {
     Empty => (None, Empty)
     NonEmpty(top, rest) => (Some(top), rest)
   }
 }
 
+///|
 struct Queue[T] {
   front : Stack[T]
   back : Stack[T]
 } derive(Show, Eq)
 
-fn Queue::empty[T]() -> Queue[T] {
+///|
+fn[T] Queue::empty() -> Queue[T] {
   { front: Empty, back: Empty }
 }
 
-fn push[T](self : Queue[T], value : T) -> Queue[T] { // push element to the end of the queue 将元素存入队尾
-  normalize({ ..self, back: self.back.push(value) })
+///|
+fn[T] Queue::push(self : Queue[T], value : T) -> Queue[T] { // push element to the end of the queue 将元素存入队尾
+  Queue::normalize({ ..self, back: self.back.push(value) })
 }
 
-fn pop[T](self : Queue[T]) -> (T?, Queue[T]) { // remove the first element 取出第一个元素
+///|
+fn[T] Queue::pop(self : Queue[T]) -> (T?, Queue[T]) { // remove the first element 取出第一个元素
   match self.front {
     Empty => (None, self)
-    NonEmpty(top, rest) => (Some(top), normalize({ ..self, front: rest }))
+    NonEmpty(top, rest) => (Some(top), Queue::normalize({ ..self, front: rest }))
   }
 }
 
-fn normalize[T](self : Queue[T]) -> Queue[T] { // if front is empty, revert back into front 如果front为空，反转back到front
+///|
+fn[T] Queue::normalize(self : Queue[T]) -> Queue[T] { // if front is empty, revert back into front 如果front为空，反转back到front
   match self.front {
     Empty => { front: self.back.reverse(), back: Empty }
     _ => self
   }
 }
 
-fn reverse[T](self : Stack[T]) -> Stack[T] { // aux: reverse stack 辅助函数：反转堆栈
+///|
+fn[T] Stack::reverse(self : Stack[T]) -> Stack[T] { // aux: reverse stack 辅助函数：反转堆栈
   fn go(acc, xs : Stack[T]) {
     match xs {
       Empty => acc
@@ -120,33 +139,38 @@ fn reverse[T](self : Stack[T]) -> Stack[T] { // aux: reverse stack 辅助函数�
   go(Empty, self)
 }
 
-fn fold_right[A, B](list : List[A], f : (A, B) -> B, b : B) -> B {
+///|
+fn[A, B] fold_right(list : List[A], f : (A, B) -> B, b : B) -> B {
   match list {
     Nil => b
     Cons(hd, tl) => f(hd, fold_right(tl, f, b))
   }
 }
 
-fn map[A, B](list : List[A], f : (A) -> B) -> List[B] {
+///|
+fn[A, B] map(list : List[A], f : (A) -> B) -> List[B] {
   match list {
     Nil => Nil
     Cons(hd, tl) => Cons(f(hd), map(tl, f))
   }
 }
 
-fn map_with_fold_right[A, B](list : List[A], f : (A) -> B) -> List[B] {
+///|
+fn[A, B] map_with_fold_right(list : List[A], f : (A) -> B) -> List[B] {
   fold_right(list, fn(value, cumulator) { Cons(f(value), cumulator) }, Nil)
 }
 
-fn fold_left[A, B](list : List[A], f : (B, A) -> B, b : B) -> B {
+///|
+fn[A, B] fold_left(list : List[A], f : (B, A) -> B, b : B) -> B {
   match list {
     Nil => b
     Cons(hd, tl) => fold_left(tl, f, f(b, hd))
   }
 }
 
+///|
 /// convert list to string 将列表转化为字符串
-fn to_string[T : Show](self : List[T]) -> String {
+fn[T : Show] List::to_string(self : List[T]) -> String {
   fn go(ls : List[T]) {
     match ls {
       Nil => ""
@@ -158,15 +182,18 @@ fn to_string[T : Show](self : List[T]) -> String {
   "[" + go(self) + "]"
 }
 
-fn output[T : Show](self : List[T], logger : Logger) -> Unit {
+///|
+impl [T : Show] Show for List[T] with output (self : List[T], logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 
+///|
 enum List[T] {
   Nil
   Cons(T, List[T])
 }
 
+///|
 fn init {
   println(
     fold_left(

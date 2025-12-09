@@ -1,3 +1,4 @@
+///|
 struct Queue {
   mut array : Array[Int]
   mut start : Int
@@ -5,11 +6,13 @@ struct Queue {
   mut length : Int
 } derive(Show)
 
+///|
 fn Queue::make() -> Queue {
   { array: Array::make(5, 0), start: 0, end: 0, length: 0 }
 }
 
-fn push(self : Queue, t : Int) -> Queue {
+///|
+fn Queue::push(self : Queue, t : Int) -> Queue {
   if self.length == self.array.length() {
     let new_array = Array::make(self.array.length() * 2, 0)
     for i = 0; i < self.array.length(); i = i + 1 {
@@ -27,7 +30,8 @@ fn push(self : Queue, t : Int) -> Queue {
   }
 }
 
-fn peek(self : Queue) -> Int? {
+///|
+fn Queue::peek(self : Queue) -> Int? {
   if self.end == self.start {
     None
   } else {
@@ -35,23 +39,29 @@ fn peek(self : Queue) -> Int? {
   }
 }
 
-fn pop(self : Queue) -> Queue {
+///|
+fn Queue::pop(self : Queue) -> Queue {
   self.start = (self.start + 1) % self.array.length()
   self.length = self.length - 1
   self
 }
 
-fn length(self : Queue) -> Int {
+///|
+fn Queue::length(self : Queue) -> Int {
   self.length
 }
 
-fn display(self : Queue) -> Unit {
+///|
+fn Queue::display(self : Queue) -> Unit {
   for i = 0; i < self.length; i = i + 1 {
-    print(self.array[(self.start + i) % self.array.length()].to_string() + " ")
+    println(
+      self.array[(self.start + i) % self.array.length()].to_string() + " ",
+    )
   }
   println("")
 }
 
+///|
 fn init {
   let queue = Queue::make()
   let _ = queue
@@ -71,21 +81,25 @@ fn init {
   queue.display()
 }
 
+///|
 struct LinkedList[T] {
   mut head : Node[T]?
   mut tail : Node[T]?
 } derive(Show)
 
+///|
 struct Node[T] {
   value : T
   mut next : Node[T]?
 } derive(Show)
 
-fn LinkedList::make[T]() -> LinkedList[T] {
+///|
+fn[T] LinkedList::make() -> LinkedList[T] {
   { head: None, tail: None }
 }
 
-fn push[T](self : LinkedList[T], value : T) -> LinkedList[T] {
+///|
+fn[T] LinkedList::push(self : LinkedList[T], value : T) -> LinkedList[T] {
   let node = { value, next: None }
   match self.tail {
     None => {
@@ -100,14 +114,16 @@ fn push[T](self : LinkedList[T], value : T) -> LinkedList[T] {
   self
 }
 
-fn peek[T](self : LinkedList[T]) -> T? {
+///|
+fn[T] LinkedList::peek(self : LinkedList[T]) -> T? {
   match self.head {
     None => None
     Some(n) => Some(n.value)
   }
 }
 
-fn pop[T](self : LinkedList[T]) -> LinkedList[T] {
+///|
+fn[T] LinkedList::pop(self : LinkedList[T]) -> LinkedList[T] {
   match self.head {
     None => ()
     Some(n) =>
@@ -122,7 +138,8 @@ fn pop[T](self : LinkedList[T]) -> LinkedList[T] {
   self
 }
 
-fn length[T](self : LinkedList[T]) -> Int {
+///|
+fn[T] LinkedList::length(self : LinkedList[T]) -> Int {
   // fn aux(node: Option[Node[T]]) -> Int {
   //   match node {
   //     None => 0
@@ -140,6 +157,7 @@ fn length[T](self : LinkedList[T]) -> Int {
   aux2(self.head, 0)
 }
 
+///|
 fn init {
   let list = LinkedList::make()
   for i = 0; i < 100000; i = i + 1 {
