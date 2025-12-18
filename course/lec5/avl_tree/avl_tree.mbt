@@ -90,9 +90,8 @@ fn balance(left : AVLTree, value : Int, right : AVLTree) -> AVLTree {
   }
 }
 
-// Insert an element 插入元素
-
 ///|
+/// Insert an element 插入元素
 fn insert(tree : AVLTree, value : Int) -> AVLTree {
   match tree {
     Empty => Node(value, Empty, Empty, 0)
@@ -107,9 +106,8 @@ fn insert(tree : AVLTree, value : Int) -> AVLTree {
   }
 }
 
-// Remove the largest element in the left tree 删除左子树最大元素
-
 ///|
+/// Remove the largest element in the left tree 删除左子树最大元素
 fn remove_largest(tree : AVLTree) -> (AVLTree, Int) {
   match tree {
     Empty => abort("Impossible")
@@ -121,9 +119,8 @@ fn remove_largest(tree : AVLTree) -> (AVLTree, Int) {
   }
 }
 
-// Remove an element 删除元素
-
 ///|
+/// Remove an element 删除元素
 fn remove(tree : AVLTree, value : Int) -> AVLTree {
   match tree {
     Empty => Empty
@@ -146,9 +143,8 @@ fn remove(tree : AVLTree, value : Int) -> AVLTree {
   }
 }
 
-// Depth first search 深度优先遍历查找
-
 ///|
+/// Depth first search 深度优先遍历查找
 fn dfs_search(target : Int, tree : AVLTree) -> Bool {
   match tree {
     Empty => false
@@ -157,9 +153,8 @@ fn dfs_search(target : Int, tree : AVLTree) -> Bool {
   }
 }
 
-// Breadth first search 广度优先遍历查找
-
 ///|
+/// Breadth first search 广度优先遍历查找
 fn bfs_search(target : Int, queue : Queue[AVLTree]) -> Bool {
   match peek(queue) {
     None => false
@@ -173,9 +168,8 @@ fn bfs_search(target : Int, queue : Queue[AVLTree]) -> Bool {
   }
 }
 
-// Depth first search and print all elements 深度优先遍历并输出
-
 ///|
+/// Depth first search and print all elements 深度优先遍历并输出
 fn dfs_print(tree : AVLTree) -> String {
   match tree {
     Empty => ""
@@ -188,9 +182,8 @@ fn dfs_print(tree : AVLTree) -> String {
   }
 }
 
-// Breadth first search and print all elements 广度优先遍历并输出
-
 ///|
+/// Breadth first search and print all elements 广度优先遍历并输出
 fn bfs_print(queue : Queue[AVLTree]) -> String {
   match peek(queue) {
     None => ""
@@ -205,9 +198,8 @@ fn bfs_print(queue : Queue[AVLTree]) -> String {
   }
 }
 
-// Entrance to the main program 程序入口
-
 ///|
+/// Entrance to the main program 程序入口
 fn init {
   let tree = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     |> stream

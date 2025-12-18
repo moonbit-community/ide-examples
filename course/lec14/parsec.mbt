@@ -1,10 +1,9 @@
 ///|
-// FIXME: replace Stirng with StringView 
-struct Lexer[V]((String) -> (V, String)?)
+struct Lexer[V]((StringView) -> (V, StringView)?)
 
 ///|
-fn[V] Lexer::parse(self : Lexer[V], str : String) -> (V, String)? {
-  (self.0)(str)
+fn[V] Lexer::parse(self : Lexer[V], str : StringView) -> (V, String)? {
+  (self.0)(str).map(val => (val.0, val.1.to_string()))
 }
 
 ///|
@@ -51,47 +50,27 @@ fn[Value] Lexer::or(
 ) -> Lexer[Value] {
   Lexer(fn(input) {
     match self.parse(input) {
-      None => parser2.parse(input)
-      Some(_) as result => result
+      None => parser2.parse(input).map(val => (val.0, val.1))
+      Some(result) => Some((result.0, result.1))
     }
   })
 }
 
 ///|
-fn[X] reverse_list(list : @immut/list.T[X]) -> @immut/list.T[X] {
-  fn go(acc, xs : @immut/list.T[X]) {
-    match xs {
-      Nil => acc
-      Cons(x, rest) => go((Cons(x, acc) : @immut/list.T[X]), rest)
-    }
-  }
-
-  go(Nil, list)
-}
-
-///|
-fn[A, B] fold_left_list(list : @immut/list.T[A], f : (B, A) -> B, b : B) -> B {
-  match list {
-    Nil => b
-    Cons(hd, tl) => fold_left_list(tl, f, f(b, hd))
-  }
-}
-
-///|
-fn[Value] Lexer::many(self : Lexer[Value]) -> Lexer[@immut/list.T[Value]] {
+fn[Value] Lexer::many(self : Lexer[Value]) -> Lexer[List[Value]] {
   Lexer(fn(input) {
     let mut rest = input
-    let mut cumul = @immut/list.Nil
+    let mut cumul = List::empty()
     while true {
       match self.parse(rest) {
         None => break
         Some((value, new_rest)) => {
           rest = new_rest
-          cumul = Cons(value, cumul)
+          cumul = List::cons(value, cumul)
         }
       }
     }
-    Some((reverse_list(cumul), rest))
+    Some((cumul.rev(), rest))
   })
 }
 
@@ -154,13 +133,13 @@ let value : Lexer[Token] = zero
     .and_(zero_to_nine.many())
     .map(val => {
       let (i, ls) = val
-      fold_left_list(ls, (i, j) => i * 10 + j, i)
+      ls.fold((i, j) => i * 10 + j, init=i)
     }),
   )
   .map(Token::Value(_))
 
 ///|
-let tokens : Lexer[@immut/list.T[Token]] = value
+let tokens : Lexer[List[Token]] = value
   .or(symbol)
   .and_(whitespace.many())
   .map(fn(val) {
@@ -197,22 +176,22 @@ enum Expression {
 } derive(Show)
 
 ///|
-struct Parser[V]((@immut/list.T[Token]) -> (V, @immut/list.T[Token])?)
+struct Parser[V]((List[Token]) -> (V, List[Token])?)
 
 ///|
 fn[V] Parser::parse(
   self : Parser[V],
-  tokens : @immut/list.T[Token],
-) -> (V, @immut/list.T[Token])? {
-  self.inner()(tokens)
+  tokens : List[Token],
+) -> (V, List[Token])? {
+  (self.0)(tokens)
 }
 
 ///|
 fn ptoken(predicate : (Token) -> Bool) -> Parser[Token] {
   Parser(fn(tokens) {
     match tokens {
-      Nil => None
-      Cons(token, rest) =>
+      Empty => None
+      More(token, tail=rest) =>
         if predicate(token) {
           Some((token, rest))
         } else {
@@ -263,20 +242,20 @@ fn[Value] Parser::or(
 }
 
 ///|
-fn[Value] Parser::many(self : Parser[Value]) -> Parser[@immut/list.T[Value]] {
+fn[Value] Parser::many(self : Parser[Value]) -> Parser[List[Value]] {
   Parser(fn(input) {
     let mut i = input
-    let mut cumul = @immut/list.T::Nil
+    let mut cumul = List::empty()
     while true {
       match self.parse(i) {
         None => break
         Some((value, rest)) => {
           i = rest
-          cumul = Cons(value, cumul)
+          cumul = List::cons(value, cumul)
         }
       }
     }
-    Some((reverse_list(cumul), i))
+    Some((cumul.rev(), i))
   })
 }
 
@@ -359,7 +338,7 @@ fn parser() -> Parser[Expression] {
     .and_(multiply.or(divide).and_(automic).many())
     .map(fn(val) {
       let (expr, list) = val
-      fold_left_list(
+      List::fold(
         list,
         fn(e, list) {
           match (e, list) {
@@ -367,14 +346,14 @@ fn parser() -> Parser[Expression] {
             (e, (_, expr)) => Expression::Divide(e, expr)
           }
         },
-        expr,
+        init=expr,
       )
     })
   expression_ref.val = combine
     .and_(plus.or(minus).and_(combine).many())
     .map(fn(val) {
       let (expr, list) = val
-      fold_left_list(
+      List::fold(
         list,
         fn(e, list) {
           match (e, list) {
@@ -382,7 +361,7 @@ fn parser() -> Parser[Expression] {
             (e, (_, expr)) => Expression::Minus(e, expr)
           }
         },
-        expr,
+        init=expr,
       )
     })
   Parser::ref_(expression_ref)
@@ -435,22 +414,22 @@ impl Expr for BoxedInt with number(i) {
 
 ///|
 impl Add for BoxedInt with add(a, b) {
-  BoxedInt(a.inner() + b.inner())
+  BoxedInt(a.0 + b.0)
 }
 
 ///|
 impl Sub for BoxedInt with sub(a, b) {
-  BoxedInt(a.inner() - b.inner())
+  BoxedInt(a.0 - b.0)
 }
 
 ///|
 impl Mul for BoxedInt with mul(a, b) {
-  BoxedInt(a.inner() * b.inner())
+  BoxedInt(a.0 * b.0)
 }
 
 ///|
 impl Div for BoxedInt with div(a, b) {
-  BoxedInt(a.inner() / b.inner())
+  BoxedInt(a.0 / b.0)
 }
 
 // Semantic: print expression 语义：输出表达式
@@ -507,7 +486,7 @@ fn[E : Expr] recursive_parser_with_tagless_final() -> Parser[E] {
       _ => abort("unreachable")
     }
   })
-  fn atomic_(tokens : @immut/list.T[Token]) -> (E, @immut/list.T[Token])? {
+  letrec atomic_ = fn(tokens : List[Token]) -> (E, List[Token])? {
     lparen
     .and_(Parser(expression))
     .and_(rparen)
@@ -518,13 +497,12 @@ fn[E : Expr] recursive_parser_with_tagless_final() -> Parser[E] {
     .or(number)
     .parse(tokens)
   }
-
-  fn combine(tokens : @immut/list.T[Token]) -> (E, @immut/list.T[Token])? {
+  and combine = fn(tokens : List[Token]) -> (E, List[Token])? {
     (Parser(atomic_) : Parser[E])
     .and_(multiply.or(divide).and_(Parser(atomic_)).many())
     .map(fn(val) {
       let (e, list) = val
-      fold_left_list(
+      List::fold(
         list,
         fn(e, list) {
           match (e, list) {
@@ -532,18 +510,17 @@ fn[E : Expr] recursive_parser_with_tagless_final() -> Parser[E] {
             (e, (_, expr)) => e / expr
           }
         },
-        e,
+        init=e,
       )
     })
     .parse(tokens)
   }
-
-  fn expression(tokens : @immut/list.T[Token]) -> (E, @immut/list.T[Token])? {
+  and expression = fn(tokens : List[Token]) -> (E, List[Token])? {
     (Parser(combine) : Parser[E])
     .and_(plus.or(minus).and_(Parser(combine)).many())
     .map(fn(val) {
       let (e, list) = val
-      fold_left_list(
+      List::fold(
         list,
         fn(e, list) {
           match (e, list) {
@@ -551,7 +528,7 @@ fn[E : Expr] recursive_parser_with_tagless_final() -> Parser[E] {
             (e, (_, expr)) => e - expr
           }
         },
-        e,
+        init=e,
       )
     })
     .parse(tokens)
@@ -561,7 +538,7 @@ fn[E : Expr] recursive_parser_with_tagless_final() -> Parser[E] {
 }
 
 ///|
-fn parse_string(str : String) -> (Expression, String, @immut/list.T[Token])? {
+fn parse_string(str : String) -> (Expression, String, List[Token])? {
   match tokens.parse(str) {
     None => None
     Some((token_list, rest_string)) =>
@@ -575,7 +552,7 @@ fn parse_string(str : String) -> (Expression, String, @immut/list.T[Token])? {
 ///|
 fn[E : Expr] parse_string_tagless_final(
   str : String,
-) -> (E, String, @immut/list.T[Token])? {
+) -> (E, String, List[Token])? {
   match tokens.parse(str) {
     None => None
     Some((token_list, rest_string)) =>
@@ -593,16 +570,16 @@ test {
   println(
     (
       parse_string_tagless_final("1 + 1 * (307 + 7) + 5 - 3 - 2") :
-      (Expression, String, @immut/list.T[Token])?),
+      (Expression, String, List[Token])?),
   )
   println(
     (
       parse_string_tagless_final("1 + 1 * (307 + 7) + 5 - 3 - 2") :
-      (BoxedInt, String, @immut/list.T[Token])?),
+      (BoxedInt, String, List[Token])?),
   )
   println(
     (
       parse_string_tagless_final("1 + 1 * (307 + 7) + 5 - 3 - 2") :
-      (BoxedString, String, @immut/list.T[Token])?),
+      (BoxedString, String, List[Token])?),
   )
 }

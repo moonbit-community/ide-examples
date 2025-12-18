@@ -52,7 +52,6 @@ fn[T : Base] hidden2output(
   inputs : Array[T],
   param : Array[Array[T]],
 ) -> Array[T] {
-  // REFACTOR: use Array::makei
   let outputs : Array[T] = Array::make(param.length(), T::constant(0.0))
   for output = 0; output < param.length(); output = output + 1 {
     for input = 0; input < inputs.length(); input = input + 1 {
@@ -129,7 +128,6 @@ fn train(
   param_output : Array[Array[Double]],
   step : Double,
 ) -> Unit {
-  // REFACTOR: use Array::makei
   let diff_hidden : Array[Array[Double]] = Array::make(param_hidden.length(), [])
   for i = 0; i < diff_hidden.length(); i = i + 1 {
     diff_hidden[i] = Array::make(param_hidden[i].length(), 0.0)
@@ -151,7 +149,6 @@ fn train(
       }
     }
   }
-  // REFACTOR: use Array::makei
   let diff_output : Array[Array[Double]] = Array::make(param_output.length(), [])
   for i = 0; i < diff_output.length(); i = i + 1 {
     diff_output[i] = Array::make(param_output[i].length(), 0.0)
@@ -187,7 +184,6 @@ fn train(
 
 ///|
 test {
-  // REFACTOR: use Array::makei
   let hidden_layer : Array[Array[Double]] = Array::make(4, [])
   for i = 0; i < hidden_layer.length(); i = i + 1 {
     hidden_layer[i] = Array::make(5, 0.2)

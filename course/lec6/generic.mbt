@@ -115,7 +115,8 @@ fn[T] Queue::push(self : Queue[T], value : T) -> Queue[T] { // push element to t
 fn[T] Queue::pop(self : Queue[T]) -> (T?, Queue[T]) { // remove the first element 取出第一个元素
   match self.front {
     Empty => (None, self)
-    NonEmpty(top, rest) => (Some(top), Queue::normalize({ ..self, front: rest }))
+    NonEmpty(top, rest) =>
+      (Some(top), Queue::normalize({ ..self, front: rest }))
   }
 }
 
@@ -183,7 +184,7 @@ fn[T : Show] List::to_string(self : List[T]) -> String {
 }
 
 ///|
-impl [T : Show] Show for List[T] with output (self : List[T], logger : &Logger) -> Unit {
+impl[T : Show] Show for List[T] with output(self : List[T], logger : &Logger) -> Unit {
   logger.write_string(self.to_string())
 }
 

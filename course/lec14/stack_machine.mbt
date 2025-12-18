@@ -1,4 +1,7 @@
 ///|
+using @list {type List}
+
+///|
 enum Value {
   I32(Int)
 }
@@ -13,21 +16,21 @@ enum Instruction {
   Call(String)
   Local_Get(String)
   Local_Set(String)
-  If(Int, @immut/list.T[Instruction], @immut/list.T[Instruction])
+  If(Int, List[Instruction], List[Instruction])
 }
 
 ///|
 struct Function {
   name : String
-  params : @immut/list.T[String]
+  params : List[String]
   result : Int
-  locals : @immut/list.T[String]
-  instructions : @immut/list.T[Instruction]
+  locals : List[String]
+  instructions : List[Instruction]
 }
 
 ///|
 struct Program {
-  functions : @immut/list.T[Function]
+  functions : List[Function]
   start : String?
 }
 
@@ -91,13 +94,13 @@ fn Program::to_wasm(self : Program, buffer : @buffer.Buffer) -> Unit {
 test "add" {
   let program = Program::{
     start: None,
-    functions: @immut/list.T::of([
+    functions: List::from_array([
       Function::{
         name: "add",
-        params: @immut/list.of(["a", "b"]),
+        params: List::from_array(["a", "b"]),
         result: 1,
-        locals: @immut/list.of([]),
-        instructions: @immut/list.of([Local_Get("a"), Local_Get("b"), Add]),
+        locals: List::from_array([]),
+        instructions: List::from_array([Local_Get("a"), Local_Get("b"), Add]),
       },
     ]),
   }
@@ -116,7 +119,7 @@ test "add" {
 ///|
 enum StackValue {
   Val(Value)
-  Func(@immut/hashmap.T[String, Value])
+  Func(@immut/hashmap.HashMap[String, Value])
 }
 
 ///|
@@ -128,9 +131,9 @@ enum AdministrativeInstruction {
 ///|
 struct State {
   program : Program
-  stack : @immut/list.T[StackValue]
-  locals : @immut/hashmap.T[String, Value]
-  instructions : @immut/list.T[AdministrativeInstruction]
+  stack : List[StackValue]
+  locals : @immut/hashmap.HashMap[String, Value]
+  instructions : List[AdministrativeInstruction]
 }
 
 ///|
@@ -145,7 +148,7 @@ fn execute(program : Program) -> String? {
           loop
             Option::Some(State::{
               program,
-              stack: Nil,
+              stack: @list.empty(),
               locals: function.locals.fold(init=@immut/hashmap.new(), fn(
                 map,
                 name,
@@ -153,7 +156,7 @@ fn execute(program : Program) -> String? {
                 map.add(name, I32(0))
               }),
               instructions: function.instructions.map(
-                AdministrativeInstruction::Plain,
+                AdministrativeInstruction::Plain(_),
               ),
             }) {
             None => Some(stdout.to_string())
@@ -167,68 +170,68 @@ fn execute(program : Program) -> String? {
 ///|
 fn evaluate(state : State, stdout : @buffer.Buffer) -> State? {
   match state.instructions {
-    Nil => None
-    Cons(Plain(instr), tl) =>
+    Empty => None
+    More(Plain(instr), tail=tl) =>
       match instr {
         Const(value) =>
           Some(State::{
             ..state,
             instructions: tl,
-            stack: Cons(Val(value), state.stack),
+            stack: List::cons(Val(value), state.stack),
           })
         Add =>
           match state.stack {
-            Cons(Val(I32(b)), Cons(Val(I32(a)), rest)) =>
+            More(Val(I32(b)), tail=More(Val(I32(a)), tail=rest)) =>
               Some(State::{
                 ..state,
                 instructions: tl,
-                stack: Cons(Val(I32(a + b)), rest),
+                stack: List::cons(Val(I32(a + b)), rest),
               })
             _ => None
           }
         Sub =>
           match state.stack {
-            Cons(Val(I32(b)), Cons(Val(I32(a)), rest)) =>
+            More(Val(I32(b)), tail=More(Val(I32(a)), tail=rest)) =>
               Some(State::{
                 ..state,
                 instructions: tl,
-                stack: Cons(Val(I32(a - b)), rest),
+                stack: List::cons(Val(I32(a - b)), rest),
               })
             _ => None
           }
         Modulo =>
           match state.stack {
-            Cons(Val(I32(b)), Cons(Val(I32(a)), rest)) =>
+            More(Val(I32(b)), tail=More(Val(I32(a)), tail=rest)) =>
               Some(State::{
                 ..state,
                 instructions: tl,
-                stack: Cons(Val(I32(a % b)), rest),
+                stack: List::cons(Val(I32(a % b)), rest),
               })
             _ => None
           }
         Equal =>
           match state.stack {
-            Cons(Val(I32(b)), Cons(Val(I32(a)), rest)) =>
+            More(Val(I32(b)), tail=More(Val(I32(a)), tail=rest)) =>
               Some(State::{
                 ..state,
                 instructions: tl,
-                stack: Cons(Val(I32(if a == b { 1 } else { 0 })), rest),
+                stack: List::cons(Val(I32(if a == b { 1 } else { 0 })), rest),
               })
             _ => None
           }
         Local_Get(var_) =>
-          match state.locals.find(var_) {
+          match state.locals.get(var_) {
             None => None
             Some(value) =>
               Some(State::{
                 ..state,
                 instructions: tl,
-                stack: Cons(Val(value), state.stack),
+                stack: List::cons(Val(value), state.stack),
               })
           }
         Local_Set(var_) =>
           match state.stack {
-            Cons(Val(value), rest) =>
+            More(Val(value), tail=rest) =>
               Some(State::{
                 ..state,
                 locals: state.locals.add(var_, value),
@@ -240,7 +243,7 @@ fn evaluate(state : State, stdout : @buffer.Buffer) -> State? {
         Call(var_) =>
           if var_ == "print_int" {
             match state.stack {
-              Cons(Val(I32(i)), rest) => {
+              More(Val(I32(i)), tail=rest) => {
                 stdout.write_string(i.to_string())
                 Some(State::{ ..state, stack: rest, instructions: tl })
               }
@@ -255,47 +258,43 @@ fn evaluate(state : State, stdout : @buffer.Buffer) -> State? {
               Some(function) => {
                 let params = state.stack.take(function.params.length())
                 let zipped = function.params.zip(params.rev())
-                match zipped {
-                  None => None
-                  Some(zipped) =>
-                    Some(State::{
-                      ..state,
-                      stack: Cons(
-                        Func(state.locals),
-                        state.stack.drop(function.params.length()),
-                      ),
-                      locals: function.locals.fold(
-                        init=zipped.fold(init=@immut/hashmap.new(), fn(x, s) {
-                          match (x, s) {
-                            (map, (name, Val(value))) => map.add(name, value)
-                            (_, _) => abort("Expected a value")
-                          }
-                        }),
-                        fn(map, name) { map.add(name, I32(0)) },
-                      ),
-                      instructions: function.instructions
-                      .map(AdministrativeInstruction::Plain)
-                      .concat(@immut/list.T::of([EndOfFrame(function.result)]))
-                      .concat(tl),
-                    })
-                }
+                Some(State::{
+                  ..state,
+                  stack: List::cons(
+                    Func(state.locals),
+                    state.stack.drop(function.params.length()),
+                  ),
+                  locals: function.locals.fold(
+                    init=zipped.fold(init=@immut/hashmap.new(), fn(x, s) {
+                      match (x, s) {
+                        (map, (name, Val(value))) => map.add(name, value)
+                        (_, _) => abort("Expected a value")
+                      }
+                    }),
+                    fn(map, name) { map.add(name, I32(0)) },
+                  ),
+                  instructions: function.instructions
+                  .map(AdministrativeInstruction::Plain(_))
+                  .concat(List::from_array([EndOfFrame(function.result)]))
+                  .concat(tl),
+                })
               }
             }
           }
         If(_, then, else_) =>
           match state.stack {
-            Cons(Val(I32(i)), rest) =>
+            More(Val(I32(i)), tail=rest) =>
               Some(State::{
                 ..state,
                 stack: rest,
                 instructions: (if i != 0 { then } else { else_ })
-                .map(AdministrativeInstruction::Plain)
+                .map(AdministrativeInstruction::Plain(_))
                 .concat(tl),
               })
             _ => None
           }
       }
-    Cons(EndOfFrame(arity), tl) => {
+    More(EndOfFrame(arity), tail=tl) => {
       let params = state.stack.take(arity)
       let stack = state.stack.drop_while(fn(val) {
         match val {
@@ -304,7 +303,7 @@ fn evaluate(state : State, stdout : @buffer.Buffer) -> State? {
         }
       })
       match stack {
-        Cons(Func(locals), rest) =>
+        More(Func(locals), tail=rest) =>
           Some(State::{
             ..state,
             stack: params.concat(rest),
@@ -319,20 +318,20 @@ fn evaluate(state : State, stdout : @buffer.Buffer) -> State? {
 
 ///|
 test "eval" {
-  let functions : @immut/list.T[Function] = @immut/list.T::of([
+  let functions : List[Function] = List::from_array([
     Function::{
       name: "gcd",
-      params: @immut/list.T::of(["a", "b"]),
+      params: List::from_array(["a", "b"]),
       result: 1,
-      locals: @immut/list.T::of([]),
-      instructions: @immut/list.T::of([
+      locals: List::from_array([]),
+      instructions: List::from_array([
         Local_Get("a"),
         Const(I32(0)),
         Equal,
         If(
           1,
-          @immut/list.T::of([Local_Get("b")]),
-          @immut/list.T::of([
+          List::from_array([Local_Get("b")]),
+          List::from_array([
             Local_Get("b"),
             Local_Get("a"),
             Modulo,
@@ -344,17 +343,17 @@ test "eval" {
     },
     Function::{
       name: "fib_aux",
-      params: @immut/list.T::of(["a", "b", "n"]),
+      params: List::from_array(["a", "b", "n"]),
       result: 1,
-      locals: @immut/list.T::of([]),
-      instructions: @immut/list.T::of([
+      locals: List::from_array([]),
+      instructions: List::from_array([
         Local_Get("n"),
         Const(I32(0)),
         Equal,
         If(
           1,
-          @immut/list.T::of([Local_Get("b")]),
-          @immut/list.T::of([
+          List::from_array([Local_Get("b")]),
+          List::from_array([
             Local_Get("b"),
             Local_Get("a"),
             Local_Get("b"),
@@ -369,10 +368,10 @@ test "eval" {
     },
     Function::{
       name: "fib",
-      params: @immut/list.T::of(["n"]),
+      params: List::from_array(["n"]),
       result: 1,
-      locals: @immut/list.T::of([]),
-      instructions: @immut/list.T::of([
+      locals: List::from_array([]),
+      instructions: List::from_array([
         Const(I32(0)),
         Const(I32(1)),
         Local_Get("n"),
@@ -381,10 +380,10 @@ test "eval" {
     },
     Function::{
       name: "test_fib",
-      params: @immut/list.T::of([]),
+      params: List::from_array([]),
       result: 0,
-      locals: @immut/list.T::of([]),
-      instructions: @immut/list.T::of([
+      locals: List::from_array([]),
+      instructions: List::from_array([
         Const(I32(5)),
         Call("fib"),
         Call("print_int"),
@@ -392,10 +391,10 @@ test "eval" {
     },
     Function::{
       name: "test_gcd",
-      params: @immut/list.T::of([]),
+      params: List::from_array([]),
       result: 0,
-      locals: @immut/list.T::of([]),
-      instructions: @immut/list.T::of([
+      locals: List::from_array([]),
+      instructions: List::from_array([
         Const(I32(10)),
         Const(I32(100)),
         Call("gcd"),
@@ -410,18 +409,18 @@ test "eval" {
 }
 
 ///|
-fn compile_expression(expression : Expression) -> @immut/list.T[Instruction] {
+fn compile_expression(expression : Expression) -> List[Instruction] {
   match expression {
-    Number(i) => @immut/list.T::of([Const(I32(i))])
+    Number(i) => List::from_array([Const(I32(i))])
     Plus(a, b) =>
       compile_expression(a)
       .concat(compile_expression(b))
-      .concat(@immut/list.T::of([Add]))
+      .concat(List::from_array([Add]))
     Minus(a, b) =>
       compile_expression(a)
       .concat(compile_expression(b))
-      .concat(@immut/list.T::of([Sub]))
-    _ => @immut/list.T::of([])
+      .concat(List::from_array([Sub]))
+    _ => List::from_array([])
   }
 }
 
@@ -429,14 +428,14 @@ fn compile_expression(expression : Expression) -> @immut/list.T[Instruction] {
 fn compile(expression : Expression) -> Program {
   Program::{
     start: Some("main"),
-    functions: @immut/list.T::of([
+    functions: List::from_array([
       Function::{
         name: "main",
-        params: @immut/list.T::of([]),
+        params: List::from_array([]),
         result: 0,
-        locals: @immut/list.T::of([]),
+        locals: List::from_array([]),
         instructions: compile_expression(expression).concat(
-          @immut/list.T::of([Call("print_int")]),
+          List::from_array([Call("print_int")]),
         ),
       },
     ]),

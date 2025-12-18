@@ -1,7 +1,6 @@
-// Top-down 自顶向下
-// Fibonacci using map 利用表计算斐波那契数列
-
 ///|
+/// Top-down 自顶向下
+/// Fibonacci using map 利用表计算斐波那契数列
 fn fib1(num : Int) -> Int64 {
   fn aux(num : Int, map : AVLMap[Int, Int64]) -> (Int64, AVLMap[Int, Int64]) {
     match AVLMap::get(map, num) {
@@ -18,10 +17,9 @@ fn fib1(num : Int) -> Int64 {
   aux(num, map).0
 }
 
-// Use mutable variable to avoid passing map around
-// 利用变量避免传递map
-
 ///|
+/// Use mutable variable to avoid passing map around
+/// 利用变量避免传递map
 fn fib1_mut(num : Int) -> Int64 {
   let mut map = put(put(make(num), 1, 1L), 2, 1L)
   fn aux(num : Int) -> Int64 {
@@ -39,9 +37,8 @@ fn fib1_mut(num : Int) -> Int64 {
   aux(num)
 }
 
-// Bottom-up 自底向上
-
 ///|
+/// Bottom-up 自底向上
 fn fib2(num : Int) -> Int64 {
   fn aux(n : Int, map : AVLMap[Int, Int64]) -> Int64 {
     let result = get_or_else(AVLMap::get(map, n - 1), 1L) +
@@ -58,7 +55,7 @@ fn fib2(num : Int) -> Int64 {
 }
 
 ///|
-fn[A] get_or_else(option_int : A?, default : A) -> A {
+fn get_or_else(option_int : Int64?, default : Int64) -> Int64 {
   match option_int {
     None => default
     Some(value) => value
@@ -99,10 +96,9 @@ fn make(_num : Int) -> AVLMap[Int, Int64] {
 
 // https://zhuanlan.zhihu.com/p/430867594
 
-// Empty represents an empty node in the AVL tree
-// Node represents a node in the AVL tree with left child, value, right child, and height
-
 ///|
+/// Empty represents an empty node in the AVL tree
+/// Node represents a node in the AVL tree with left child, value, right child, and height
 enum AVLMap[Key, Value] {
   Empty
   Node(AVLMap[Key, Value], Key, Value, AVLMap[Key, Value], Int)
@@ -143,7 +139,7 @@ fn[Key, Value] create(
 /// This function performs a balancing operation on a avl tree node based on the heights
 /// of its left and right subtrees. It ensures that the heights of the subtrees are balanced
 /// and returns a new avl tree node with appropriate restructuring if necessary.
-fn[Key, Value] bal(
+fn[Key, Value] AVLMap::bal(
   l : AVLMap[Key, Value],
   key : Key,
   value : Value,
@@ -213,9 +209,9 @@ fn[Key : Compare, Value] AVLMap::add(
       if c == 0 {
         t
       } else if c < 0 {
-        bal(l.add(key, value), k, v, r)
+        AVLMap::bal(l.add(key, value), k, v, r)
       } else {
-        bal(l, k, v, r.add(key, value))
+        AVLMap::bal(l, k, v, r.add(key, value))
       }
     }
   }
@@ -249,7 +245,7 @@ fn[Key, Value] remove_min_elt(
   match l {
     Empty => r
     Node(ll, lk, lv, lr, _) =>
-      bal(remove_min_elt(ll, lk, lv, lr), key, value, r)
+      AVLMap::bal(remove_min_elt(ll, lk, lv, lr), key, value, r)
   }
 }
 
@@ -265,7 +261,7 @@ fn[Key, Value] AVLMap::internal_merge(
     (Empty, t) => t
     (t, Empty) => t
     (_, Node(rl, rk, rv, rr, _)) =>
-      bal(self, rk, other.min_elt(rv), remove_min_elt(rl, rk, rv, rr))
+      AVLMap::bal(self, rk, other.min_elt(rv), remove_min_elt(rl, rk, rv, rr))
   }
 }
 
@@ -284,9 +280,9 @@ fn[Key : Compare, Value] AVLMap::remove(
       if c == 0 {
         l.internal_merge(r)
       } else if c < 0 {
-        bal(l.remove(x), k, v, r)
+        AVLMap::bal(l.remove(x), k, v, r)
       } else {
-        bal(l, k, v, r.remove(x))
+        AVLMap::bal(l, k, v, r.remove(x))
       }
     }
   }
