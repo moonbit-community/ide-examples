@@ -139,10 +139,12 @@ fn baby_name(info : PersonalInfo) -> String? {
 }
 
 ///|
+#warnings("-unreachable_code")
 fn zip(l1 : List[Int], l2 : List[Char]) -> List[(Int, Char)] {
   match (l1, l2) {
-    _ => @list.empty() // Wrong order, making the following two lines unreachable 顺序错误，使得下方两行代码无法到达
-    // you can remove disable warning config to see the warning
+    _ => @list.empty()
+    // Wrong order, making the following two lines unreachable 顺序错误，使得下方两行代码无法到达
+    // Remove annotation to see the error 去掉注解以查看错误
     (More(hd, tail=tl), More(hd2, tail=tl2)) =>
       @list.cons((hd, hd2), zip(tl, tl2))
     _ => @list.empty()
