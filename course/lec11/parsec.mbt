@@ -1,10 +1,9 @@
 ///|
-// FIXME: replace Stirng with StringView 
-struct Lexer[V]((String) -> (V, String)?)
+struct Lexer[V]((StringView) -> (V, StringView)?)
 
 ///|
-fn[V] Lexer::parse(self : Lexer[V], str : String) -> (V, String)? {
-  (self.0)(str)
+fn[V] Lexer::parse(self : Lexer[V], str : StringView) -> (V, String)? {
+  (self.0)(str).map(val => (val.0, val.1.to_string()))
 }
 
 ///|
@@ -51,8 +50,8 @@ fn[Value] Lexer::or(
 ) -> Lexer[Value] {
   Lexer(fn(input) {
     match self.parse(input) {
-      None => parser2.parse(input)
-      Some(_) as result => result
+      None => parser2.parse(input).map(val => (val.0, val.1))
+      Some(result) => Some((result.0, result.1))
     }
   })
 }
